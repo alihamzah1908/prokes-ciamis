@@ -54,7 +54,7 @@
     <div class="col-lg-6" style="margin-top: 25px;">
         <?php
             if(request()->periode_kasus){
-                $tanggal_pantau = date('Y-d-m', strtotime(request()->periode_kasus));
+                $tanggal_pantau = request()->periode_kasus;
             }else{
                 $var = \App\Models\Prokes::select('tanggal_pantau')
                 ->orderBy('tanggal_pantau', 'desc')->first();
@@ -96,12 +96,18 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col mr-2 text-center">
-                        <span class="text-card-color">KECAMATAN</span>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">{{ \App\Models\Kecamatan::count() }}</div>
-                    </div>
-                    <div class="col mr-2 text-center">
                         <span class="text-card-color">DESA</span>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">{{ \App\Models\Desa::count() }}</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
+                        @php 
+                        $desa = \App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)
+                            ->where('kode_kecamatan', request()->kecamatan)
+                            ->groupBy('kode_desa')
+                            ->get();
+                        @endphp
+                        {{ 
+                            count($desa)
+                        }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -184,7 +190,7 @@
                         $pakai_masker = 0;
                         }
                         @endphp
-                        {{ round($pakai_masker, 1) . '%' }}
+                        {{ round($pakai_masker, 2) . '%' }}
                         </div>
                     </div>
                     <div class="col mr-2 text-center">
@@ -205,7 +211,7 @@
                             $jaga_jarak = 0;
                         }
                         @endphp
-                        {{ round($jaga_jarak, 1) . '%' }}
+                        {{ round($jaga_jarak, 2) . '%' }}
                         </div>
                     </div>
                 </div>
@@ -241,7 +247,7 @@
                         $kepatuhan_jaga_jarak = ($kepatuhan_prokes->pluck('jaga_jarak')->sum() != 0) ? ($kepatuhan_prokes->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0;
                         $kepatuhan = ($kepatuhan_masker + $kepatuhan_jaga_jarak) / 2;
                         @endphp
-                        {{ round($kepatuhan, 1) . '%' }}
+                        {{ round($kepatuhan, 2) . '%' }}
                         </div>
                     </div>
                 </div>
@@ -306,18 +312,23 @@
             </thead>
             <tbody>
             @php 
-            $data = \App\Models\Desa::where('kode_kecamatan', request()->kecamatan)->get();
+            $data = \App\Models\Desa::orderBy('nama_kelurahan')
+                ->where('kode_kecamatan', request()->kecamatan)
+                ->get();
             @endphp
             @foreach($data as $val)
             @php 
             $kepatuhan_prokes1 = \App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_desa', $val->kode_kelurahan)->get();
             $total_masker1 = $kepatuhan_prokes1->pluck('pakai_masker')->sum() + $kepatuhan_prokes1->pluck('tidak_pakai_masker')->sum();
             $total_jarak1 = $kepatuhan_prokes1->pluck('jaga_jarak')->sum() + $kepatuhan_prokes1->pluck('tidak_jaga_jarak')->sum();
+            $kepatuhan_masker1 = ($kepatuhan_prokes1->pluck('pakai_masker')->sum() != 0) ? ($kepatuhan_prokes1->pluck('pakai_masker')->sum() / $total_masker1) * 100 : 0;
+            $kapatuhan_jarak1 = ($kepatuhan_prokes1->pluck('jaga_jarak')->sum() != 0) ? ($kepatuhan_prokes1->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0;
             @endphp
                 <tr>
                     <td>{{ $val->nama_kelurahan }}</td>
-                    <td>{{ round(($kepatuhan_prokes1->pluck('pakai_masker')->sum() != 0) ? ($kepatuhan_prokes1->pluck('pakai_masker')->sum() / $total_masker1) * 100 : 0, 1) }}</td>
-                    <td>{{ round(($kepatuhan_prokes1->pluck('jaga_jarak')->sum() != 0) ? ($kepatuhan_prokes1->pluck('jaga_jarak')->sum() / $total_jarak1) * 100 : 0, 1) }}</td>
+                    <td>{{ round(($kepatuhan_prokes1->pluck('pakai_masker')->sum() != 0) ? ($kepatuhan_prokes1->pluck('pakai_masker')->sum() / $total_masker1) * 100 : 0, 2) }}</td>
+                    <td>{{ round(($kepatuhan_prokes1->pluck('jaga_jarak')->sum() != 0) ? ($kepatuhan_prokes1->pluck('jaga_jarak')->sum() / $total_jarak1) * 100 : 0, 2) }}</td>
+                    <td>{{ round(($kepatuhan_masker1 + $kapatuhan_jarak1) / 2, 2)}}</td>
                 </tr>
             @endforeach
             </tbody>
@@ -336,7 +347,7 @@
     </div>
 </div>
 <div class="row mt-4" style='border-top: 3px solid #b300b3;'>
-    <div class="col-lg-12 mt-4">
+    <div class="col-lg-12 mt-4 mr-4">
         <h4>Peta Kepatuhan Prokes</h4>
         <h5>Peta Kepatuhan Prokes merupakan pemetaan tingkat kepatuhan masyarakat terhadap protokol kesehatan khususnya protokol menggunakan masker dan menjaga jarak. Data diperoleh dari hasil pengamatan secara sampel di beberapa titik dan pada jam tertentu. Perbedaan warna merepresentasikan perbedaan tingkat kepatuhan masyarakat terhadap protokol kesehatan.</h5>
         <div id="container"></div>
@@ -727,10 +738,13 @@ $.ajax({
         },
         series: [{
             name: 'Kepatuhan Pakai Masker',
-            data: [Math.round(response.kepatuhan_masker_hotel), Math.round(response.kepatuhan_masker_sebud), Math.round(response.kepatuhan_masker_resto, response.kepatuhan_masker_ibadah), Math.round(response.kepatuhan_masker_publik), Math.round(response.kepatuhan_masker_wisata), Math.round(response.kepatuhan_masker_belanja), Math.round(response.kepatuhan_masker_transport)]
+            data: [response.kepatuhan_masker_hotel, response.kepatuhan_masker_sebud, response.kepatuhan_masker_resto, response.kepatuhan_masker_ibadah, response.kepatuhan_masker_publik, response.kepatuhan_masker_wisata, response.kepatuhan_masker_belanja, response.kepatuhan_masker_transport]
         }, {
             name: 'Kepatuhan Jaga Jarak',
-            data: [Math.round(response.kepatuhan_jaga_jarak_hotel), Math.round(response.kepatuhan_jaga_jarak_sebud), Math.round(response.kepatuhan_jaga_jarak_resto), Math.round(response.kepatuhan_jaga_jarak_ibadah), Math.round(response.kepatuhan_jaga_jarak_publik), Math.round(response.kepatuhan_jaga_jarak_wisata), Math.round(response.kepatuhan_jaga_jarak_belanja), Math.round(response.kepatuhan_jaga_jarak_transport)]
+            data: [response.kepatuhan_jaga_jarak_hotel, response.kepatuhan_jaga_jarak_sebud, response.kepatuhan_jaga_jarak_resto, response.kepatuhan_jaga_jarak_ibadah, response.kepatuhan_jaga_jarak_publik, response.kepatuhan_jaga_jarak_wisata, response.kepatuhan_jaga_jarak_belanja, response.kepatuhan_jaga_jarak_transport]
+        }, {
+            name: 'Kepatuhan Individu',
+            data: [response.kepatuhan_hotel, response.kepatuhan_sebud, response.kepatuhan_resto, response.kepatuhan_ibadah, response.kepatuhan_publik, response.kepatuhan_wisata, response.kepatuhan_belanja, response.kepatuhan_transport]
         }]
     });
 })

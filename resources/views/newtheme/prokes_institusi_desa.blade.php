@@ -49,7 +49,7 @@
     <div class="col-lg-6" style="margin-top: 25px;">
         <?php
             if(request()->periode_kasus){
-                $tanggal_pantau = date('Y-d-m', strtotime(request()->periode_kasus));
+                $tanggal_pantau = request()->periode_kasus;
             }else{
                 $var = \App\Models\ProkesInstitusi::select('tanggal_pantau')
                 ->orderBy('tanggal_pantau', 'desc')->first();
@@ -90,12 +90,18 @@
                 </div>
                 <div class="row mt-3">
                     <div class="col mr-2 text-center">
-                        <span class="text-card-color">KECAMATAN</span>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">{{ \App\Models\Kecamatan::count() }}</div>
-                    </div>
-                    <div class="col mr-2 text-center">
                         <span class="text-card-color">DESA</span>
-                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">{{ \App\Models\Desa::count() }}</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
+                            @php 
+                            $desa = \App\Models\ProkesInstitusi::where('tanggal_pantau', $tanggal_pantau)
+                                ->where('kecamatan_id', request()->kecamatan)
+                                ->groupBy('desa_id')
+                                ->get();
+                            @endphp
+                            {{ 
+                                count($desa)
+                            }}
+                            </div>
                     </div>
                 </div>
             </div>
@@ -227,7 +233,7 @@
                         }
                         $average = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
                         </div>
                     </div>
                     <div class="col mr-2 text-center">
@@ -244,7 +250,7 @@
                         }
                         $average = $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
                         </div>
                     </div>
                     <div class="col mr-2 text-center">
@@ -261,7 +267,7 @@
                         }
                         $average = $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
                         </div>
                     </div>
                     <div class="col mr-2 text-center">
@@ -278,7 +284,7 @@
                         }
                         $average = $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
                         </div>
                     </div>
                     <div class="col mr-2 text-center">
@@ -295,7 +301,7 @@
                         }
                         $average = $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
                         </div>
                     </div>
                 </div>
@@ -330,7 +336,69 @@
                         }
                         $average = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg() + $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg() + $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg() + $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg() + $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
                         @endphp
-                        {{ round($average, 1) . '%' }}
+                        {{ round($average, 2) . '%' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+    <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-center text-xs font-weight-bold text-uppercase mb-1 text-card-color">
+                            KEPATUHAN PROKES LOKASI PANTAU</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color"></div>
+                    </div>
+                    <div class="col-auto">
+                        <!-- <img height='100' width="100" src="https://image.freepik.com/free-vector/strong-man-with-good-immune-system-against-viruses_23-2148568830.jpg"> -->
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">HOTEL</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="hotel"></div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">KEGIATAN SENI BUDAYA</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="sebud">
+                        
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">RESTORAN CAFE TEMPAT HIBURAN</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="resto">
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">TEMPAT IBADAH</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="ibadah">
+                       
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">AREA PUBLIK</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="publik">
+                        
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">OBJEK WISATA</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="wisata">
+                       
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">PUSAT PERBELANJAAN</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="belanja">
+                        </div>
+                    </div>
+                    <div class="col mr-2 text-center">
+                        <span class="text-card-color">TRANSPORTSI UMUM</span>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color" id="transport">
+                        
                         </div>
                     </div>
                 </div>
@@ -407,7 +475,9 @@
             </thead>
             <tbody>
             @php 
-            $data = \App\Models\Desa::where('kode_kecamatan', request()->kecamatan)->get();
+            $data = \App\Models\Desa::orderBy('nama_kelurahan', 'asc')
+                ->where('kode_kecamatan', request()->kecamatan)
+                ->get();
             @endphp
             @foreach($data as $val)
             @php 
@@ -416,17 +486,17 @@
             @endphp
                 <tr>
                     <td>{{ $val->nama_kelurahan }}</td>
-                    <td>{{ round($kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg(), 1) }}</td>
-                    <td>{{ round($kepatuhan_prokes->pluck('sosialisasi_prokes')->avg(), 1) }}</td>
-                    <td>{{ round($kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg(), 1) }}</td>
-                    <td>{{ round($kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg(), 1) }}</td>
-                    <td>{{ round($kepatuhan_prokes->pluck('desinfeksi_berkala')->avg(), 1) }}</td>
+                    <td>{{ round($kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg(), 2) }}</td>
+                    <td>{{ round($kepatuhan_prokes->pluck('sosialisasi_prokes')->avg(), 2) }}</td>
+                    <td>{{ round($kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg(), 2) }}</td>
+                    <td>{{ round($kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg(), 2) }}</td>
+                    <td>{{ round($kepatuhan_prokes->pluck('desinfeksi_berkala')->avg(), 2) }}</td>
                 </tr>
             @endforeach
             </tbody>
         </table>
     </div>
-    <div class="col-md-6 mt-4">
+    <div class="col-md-6 mt-4 ">
         <h4>Grafik Kepatuhan Prokes</h4>
         <!-- <canvas id="densityChart" width="500" height="600"></canvas>
         <canvas id="densityChart-cuci" width="500" height="600" style="display: none;"></canvas>
@@ -441,7 +511,7 @@
     </div>
 </div>
 <div class="row mt-4" style='border-top: 3px solid #b300b3;'>
-    <div class="col-lg-12 mt-4">
+    <div class="col-lg-12 mt-4 mr-4">
         <h4>Peta Kepatuhan Prokes</h4>
         <h5>Peta Kepatuhan Prokes merupakan pemetaan tingkat kepatuhan masyarakat terhadap protokol kesehatan khususnya protokol menggunakan masker dan menjaga jarak. Data diperoleh dari hasil pengamatan secara sampel di beberapa titik dan pada jam tertentu. Perbedaan warna merepresentasikan perbedaan tingkat kepatuhan masyarakat terhadap protokol kesehatan.</h5>
         <div id="container"></div>
@@ -819,6 +889,14 @@ $.ajax({
         "tanggal_pantau" : "{{ $tanggal_pantau }}"
     },
 }).done(function(response){
+    $("#hotel").html(response.hotel.toFixed(2) + '%')
+    $("#sebud").html(response.sebud.toFixed(2) + '%')
+    $("#resto").html(response.resto.toFixed(2) + '%')
+    $("#ibadah").html(response.ibadah.toFixed(2) + '%')
+    $("#publik").html(response.publik.toFixed(2) + '%')
+    $("#wisata").html(response.wisata.toFixed(2) + '%')
+    $("#belanja").html(response.belanja.toFixed(2) + '%')
+    $("#transport").html(response.transport.toFixed(2) + '%')
     Highcharts.chart('lokasipantau', {
         chart: {
             type: 'bar'
@@ -872,19 +950,19 @@ $.ajax({
         },
         series: [{
             name: 'Fasilitas Cuci Tangan',
-            data: [Math.round(response.cuci_tangan_hotel), Math.round(response.cuci_tangan_sebud), Math.round(response.cuci_tangan_resto), Math.round(response.cuci_tangan_ibadah) ,Math.round(response.cuci_tangan_publik), Math.round(response.cuci_tangan_wisata), Math.round(response.cuci_tangan_belanja), Math.round(response.cuci_tangan_transport)]
-        },{
-            name: 'Sosialisasi Prokes',
-            data: [Math.round(response.prokes_hotel), Math.round(response.pokes_sebud), Math.round(response.prokes_resto), Math.round(response.prokes_ibadah) ,Math.round(response.prokes_publik), Math.round(response.prokes_wisata), Math.round(response.prokes_belanja), Math.round(response.prokes_transport)]
-        },{
-            name: 'Cek Suhu Tubuh',
-            data: [Math.round(response.suhu_hotel), Math.round(response.suhu_sebud), Math.round(response.suhu_resto), Math.round(response.suhu_ibadah) ,Math.round(response.suhu_publik), Math.round(response.suhu_wisata), Math.round(response.suhu_belanja), Math.round(response.suhu_transport)]
-        },{
-            name: 'Petugas Pengawas Prokes',
-            data: [Math.round(response.pengawas_hotel), Math.round(response.pengawas_sebud), Math.round(response.pengawas_resto), Math.round(response.pengawas_ibadah) ,Math.round(response.pengawas_publik), Math.round(response.pengawas_wisata), Math.round(response.pengawas_belanja), Math.round(response.pengawas_transport)]
-        },{
-            name: 'Desinfeksi Berkala',
-            data: [Math.round(response.desinfeksi_hotel), Math.round(response.desinfeksi_sebud), Math.round(response.desinfeksi_resto), Math.round(response.desinfeksi_resto) ,Math.round(response.desinfeksi_publik), Math.round(response.desinfeksi_wisata), Math.round(response.desinfeksi_belanja), Math.round(response.desinfeksi_transport)]
+            data: [parseFloat(response.cuci_tangan_hotel.toFixed(2)), parseFloat(response.cuci_tangan_sebud.toFixed(2)), parseFloat(response.cuci_tangan_resto.toFixed(2)), parseFloat(response.cuci_tangan_ibadah.toFixed(2)) ,parseFloat(response.cuci_tangan_publik.toFixed(2)), parseFloat(response.cuci_tangan_wisata.toFixed(2)), parseFloat(response.cuci_tangan_belanja), parseFloat(response.cuci_tangan_transport.toFixed(2))]
+            },{
+                name: 'Sosialisasi Prokes',
+                data: [parseFloat(response.prokes_hotel.toFixed(2)), parseFloat(response.prokes_sebud.toFixed(2)), parseFloat(response.prokes_resto.toFixed(2)), parseFloat(response.prokes_ibadah.toFixed(2)) ,parseFloat(response.prokes_publik.toFixed(2)), parseFloat(response.prokes_wisata.toFixed(2)), parseFloat(response.prokes_belanja.toFixed(2)), parseFloat(response.prokes_transport.toFixed(2))]
+            },{
+                name: 'Cek Suhu Tubuh',
+                data: [parseFloat(response.suhu_hotel.toFixed(2)), parseFloat(response.suhu_sebud.toFixed(2)), parseFloat(response.suhu_resto.toFixed(2)), parseFloat(response.suhu_ibadah.toFixed(2)) , parseFloat(response.suhu_publik.toFixed(2)), parseFloat(response.suhu_wisata.toFixed(2)), parseFloat(response.suhu_belanja.toFixed(2)), parseFloat(response.suhu_transport.toFixed(2))]
+            },{
+                name: 'Petugas Pengawas Prokes',
+                data: [parseFloat(response.pengawas_hotel.toFixed(2)), parseFloat(response.pengawas_sebud.toFixed(2)), parseFloat(response.pengawas_resto.toFixed(2)), parseFloat(response.pengawas_ibadah.toFixed(2)) ,parseFloat(response.pengawas_publik.toFixed(2)), parseFloat(response.pengawas_wisata.toFixed(2)), parseFloat(response.pengawas_belanja.toFixed(2)), parseFloat(response.pengawas_transport.toFixed(2))]
+            },{
+                name: 'Desinfeksi Berkala',
+                data: [parseFloat(response.desinfeksi_hotel.toFixed(2)), parseFloat(response.desinfeksi_sebud.toFixed(2)), parseFloat(response.desinfeksi_resto.toFixed(2)), parseFloat(response.desinfeksi_ibadah.toFixed(2)) ,parseFloat(response.desinfeksi_publik.toFixed(2)), parseFloat(response.desinfeksi_wisata.toFixed(2)), parseFloat(response.desinfeksi_belanja.toFixed(2)), parseFloat(response.desinfeksi_transport.toFixed(2))]
         }]
     });
 })

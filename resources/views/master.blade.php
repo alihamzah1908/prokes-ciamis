@@ -92,7 +92,7 @@
   </ul>
 </div>
 
-<div class="page-content p-5" id="content">
+<div class="page-content p-3" id="content">
 <!-- <button id="sidebarCollapse" type="button" class="btn btn-light bg-white rounded-pill shadow-sm px-4 mb-4"><i class="fa fa-bars mr-2"></i><small class="text-uppercase font-weight-bold">Toggle</small></button> -->
 <!-- End vertical navbar -->
     @yield('content')

@@ -57,6 +57,21 @@ class ProkesInstitusiController extends Controller
         $data->desinfeksi_berkala = $request["desinfeksi_berkala"];
         $data->created_by = Auth::user()->id;
         $data->save();
+        if ($request->hasfile('image')) {
+            foreach ($request->file('image') as $key => $file) {
+                $name = $key . '-' . time() . '.' . $file->extension();
+                $file->move(public_path() . '/dokumen_institusi/', $name);
+                $file = new \App\Models\DokumenInstitusi();
+                $file->institusi_id = $data->id;
+                $file->kode_kecamatan = $request["kecamatan_id"];
+                $file->kode_desa = $request["desa_id"];
+                $file->lokasi_pantau = $request["master_lokasi_pantau"] . '-' . $request["lokasi_pantau"];
+                $file->tanggal_pantau = date('Y-m-d', strtotime($request["tanggal_pantau"]));
+                $file->deskripsi_image = $request["deskripsi_dokumen"];
+                $file->image = $name;
+                $file->save();
+            }
+        }
         return redirect(route('institusi.index'));
     }
 
@@ -261,6 +276,36 @@ class ProkesInstitusiController extends Controller
         return redirect()->back()->with(['error' => 'Please choose file before']);
     }
 
+    public function dokumen(Request $request)
+    {
+        return view('admin.prokes_institusi.dokumen');
+    }
+
+    public function upload_dokumen_institusi(Request $request)
+    {
+        // $this->validate($request, [
+        //     'image' => 'required',
+        //     'image.*' => 'mimes:doc,pdf,docx,zip',
+        // ]);
+        if ($request->hasfile('image')) {
+            foreach ($request->file('image') as $key => $file) {
+                $name = $key . '-' . time() . '.' . $file->extension();
+                $file->move(public_path() . '/dokumen_institusi/', $name);
+                $data[] = $name;
+                $file = new \App\Models\DokumenInstitusi();
+                $file->institusi_id = $request["institusi_id"];
+                $file->kode_kecamatan = $request["kecamatan_id"];
+                $file->kode_desa = $request["desa_id"];
+                $file->lokasi_pantau = $request["master_lokasi_pantau"] . '-' . $request["lokasi_pantau"];
+                $file->tanggal_pantau = date('Y-m-d', strtotime($request["tanggal_pantau"]));
+                $file->deskripsi_image = $request["deskripsi_dokumen"];
+                $file->image = $name;
+                $file->save();
+            }
+        }
+        return redirect(route('institusi.dokumen', ['institusi_id' => $request["institusi_id"]]));
+    }
+
     public function get_lokasi_pantau_institusi(Request $request){
         $hotel = 'Hotel';
         $sebud = 'Kegiatan Seni Budaya';
@@ -276,84 +321,84 @@ class ProkesInstitusiController extends Controller
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
        
-        $data["cuci_tangan_hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_hotel"] = $hotel->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_hotel"] = $hotel->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_hotel"] = $hotel->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_hotel"] = $hotel->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg() ? $hotel->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_hotel"] = $hotel->pluck('sosialisasi_prokes')->avg() ? $hotel->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_hotel"] = $hotel->pluck('cek_suhu_tubuh')->avg() ? $hotel->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_hotel"] = $hotel->pluck('petugas_pengawas_prokes')->avg() ? $hotel->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_hotel"] = $hotel->pluck('desinfeksi_berkala')->avg() ? $hotel->pluck('desinfeksi_berkala')->avg() : 0;
         $data["hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg() + $hotel->pluck('sosialisasi_prokes')->avg() + $hotel->pluck('cek_suhu_tubuh')->avg() + $hotel->pluck('petugas_pengawas_prokes')->avg() + $hotel->pluck('desinfeksi_berkala')->avg();
         
         //Kepatuhan seni budaya
         $sebud = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$sebud}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_sebud"] = $sebud->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_sebud"] = $sebud->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_sebud"] = $sebud->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_sebud"] = $sebud->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg() ? $sebud->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_sebud"] = $sebud->pluck('sosialisasi_prokes')->avg() ? $sebud->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_sebud"] = $sebud->pluck('cek_suhu_tubuh')->avg() ? $sebud->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_sebud"] = $sebud->pluck('petugas_pengawas_prokes')->avg() ? $sebud->pluck('petugas_pengawas_prokes')->avg(): 0;
+        $data["desinfeksi_sebud"] = $sebud->pluck('desinfeksi_berkala')->avg() ? $sebud->pluck('desinfeksi_berkala')->avg() : 0;
         $data["sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg() + $sebud->pluck('sosialisasi_prokes')->avg() + $sebud->pluck('cek_suhu_tubuh')->avg() + $sebud->pluck('petugas_pengawas_prokes')->avg() + $sebud->pluck('desinfeksi_berkala')->avg();
 
 
         $belanja = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$belanja}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_belanja"] = $belanja->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_belanja"] = $belanja->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_belanja"] = $belanja->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_belanja"] = $belanja->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg() ? $belanja->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_belanja"] = $belanja->pluck('sosialisasi_prokes')->avg() ? $belanja->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_belanja"] = $belanja->pluck('cek_suhu_tubuh')->avg() ? $belanja->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_belanja"] = $belanja->pluck('petugas_pengawas_prokes')->avg() ? $belanja->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_belanja"] = $belanja->pluck('desinfeksi_berkala')->avg() ? $belanja->pluck('desinfeksi_berkala')->avg() : 0;
         $data["belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg() + $belanja->pluck('sosialisasi_prokes')->avg() + $belanja->pluck('cek_suhu_tubuh')->avg() + $belanja->pluck('petugas_pengawas_prokes')->avg() + $belanja->pluck('desinfeksi_berkala')->avg();
 
 
         $publik = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$publik}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_publik"] = $publik->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_publik"] = $publik->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_publik"] = $publik->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_publik"] = $publik->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg() ? $publik->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_publik"] = $publik->pluck('sosialisasi_prokes')->avg() ? $publik->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_publik"] = $publik->pluck('cek_suhu_tubuh')->avg() ? $publik->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_publik"] = $publik->pluck('petugas_pengawas_prokes')->avg() ? $publik->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_publik"] = $publik->pluck('desinfeksi_berkala')->avg() ? $publik->pluck('desinfeksi_berkala')->avg() : 0;
         $data["publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg() + $publik->pluck('sosialisasi_prokes')->avg() + $publik->pluck('cek_suhu_tubuh')->avg() + $publik->pluck('petugas_pengawas_prokes')->avg() + $publik->pluck('desinfeksi_berkala')->avg();
         
         $resto = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$resto}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_resto"] = $resto->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_resto"] = $resto->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_resto"] = $resto->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_resto"] = $resto->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg() ? $resto->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_resto"] = $resto->pluck('sosialisasi_prokes')->avg() ? $resto->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_resto"] = $resto->pluck('cek_suhu_tubuh')->avg() ? $resto->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_resto"] = $resto->pluck('petugas_pengawas_prokes')->avg() ? $resto->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_resto"] = $resto->pluck('desinfeksi_berkala')->avg() ? $resto->pluck('desinfeksi_berkala')->avg() : 0;
         $data["resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg() + $resto->pluck('sosialisasi_prokes')->avg() + $resto->pluck('cek_suhu_tubuh')->avg() + $resto->pluck('petugas_pengawas_prokes')->avg() + $resto->pluck('desinfeksi_berkala')->avg();
 
         $transport = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$transport}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_transport"] = $transport->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_transport"] = $transport->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_transport"] = $transport->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_transport"] = $transport->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg() ? $transport->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_transport"] = $transport->pluck('sosialisasi_prokes')->avg() ? $transport->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_transport"] = $transport->pluck('cek_suhu_tubuh')->avg() ? $transport->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_transport"] = $transport->pluck('petugas_pengawas_prokes')->avg() ? $transport->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_transport"] = $transport->pluck('desinfeksi_berkala')->avg() ? $transport->pluck('desinfeksi_berkala')->avg() : 0;
         $data["transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg() + $transport->pluck('sosialisasi_prokes')->avg() + $transport->pluck('cek_suhu_tubuh')->avg() + $transport->pluck('petugas_pengawas_prokes')->avg() + $transport->pluck('desinfeksi_berkala')->avg();
 
         $wisata = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$wisata}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_wisata"] = $wisata->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_wisata"] = $wisata->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_wisata"] = $wisata->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_wisata"] = $wisata->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_wisata"] = $wisata->pluck('sosialisasi_prokes')->avg() ? $wisata->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_wisata"] = $wisata->pluck('cek_suhu_tubuh')->avg() ? $wisata->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_wisata"] = $wisata->pluck('petugas_pengawas_prokes')->avg() ? $wisata->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_wisata"] = $wisata->pluck('desinfeksi_berkala')->avg() ? $wisata->pluck('desinfeksi_berkala')->avg() : 0;
         $data["wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg() + $wisata->pluck('sosialisasi_prokes')->avg() + $wisata->pluck('cek_suhu_tubuh')->avg() + $wisata->pluck('petugas_pengawas_prokes')->avg() + $wisata->pluck('desinfeksi_berkala')->avg();
 
         $ibadah = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$ibadah}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->get();
-        $data["cuci_tangan_ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_ibadah"] = $ibadah->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_ibadah"] = $ibadah->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_ibadah"] = $ibadah->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_ibadah"] = $ibadah->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg() ? $ibadah->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_ibadah"] = $ibadah->pluck('sosialisasi_prokes')->avg() ? $ibadah->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_ibadah"] = $ibadah->pluck('cek_suhu_tubuh')->avg() ? $ibadah->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_ibadah"] = $ibadah->pluck('petugas_pengawas_prokes')->avg() ? $ibadah->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_ibadah"] = $ibadah->pluck('desinfeksi_berkala')->avg() ? $ibadah->pluck('desinfeksi_berkala')->avg() : 0;
         $data["ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg() + $ibadah->pluck('sosialisasi_prokes')->avg() + $ibadah->pluck('cek_suhu_tubuh')->avg() + $ibadah->pluck('petugas_pengawas_prokes')->avg() + $ibadah->pluck('desinfeksi_berkala')->avg();
         // dd($wisata);
         return response()->json($data);
@@ -373,11 +418,12 @@ class ProkesInstitusiController extends Controller
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_hotel"] = $hotel->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_hotel"] = $hotel->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_hotel"] = $hotel->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_hotel"] = $hotel->pluck('desinfeksi_berkala')->avg();
+
+        $data["cuci_tangan_hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg() ? $hotel->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_hotel"] = $hotel->pluck('sosialisasi_prokes')->avg() ? $hotel->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_hotel"] = $hotel->pluck('cek_suhu_tubuh')->avg() ? $hotel->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_hotel"] = $hotel->pluck('petugas_pengawas_prokes')->avg() ? $hotel->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_hotel"] = $hotel->pluck('desinfeksi_berkala')->avg() ? $hotel->pluck('desinfeksi_berkala')->avg() : 0;
         $data["hotel"] = $hotel->pluck('fasilitas_cuci_tangan')->avg() + $hotel->pluck('sosialisasi_prokes')->avg() + $hotel->pluck('cek_suhu_tubuh')->avg() + $hotel->pluck('petugas_pengawas_prokes')->avg() + $hotel->pluck('desinfeksi_berkala')->avg();
         
         //Kepatuhan seni budaya
@@ -385,11 +431,12 @@ class ProkesInstitusiController extends Controller
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_sebud"] = $sebud->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_sebud"] = $sebud->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_sebud"] = $sebud->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_sebud"] = $sebud->pluck('desinfeksi_berkala')->avg();
+
+        $data["cuci_tangan_sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg() ? $sebud->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_sebud"] = $sebud->pluck('sosialisasi_prokes')->avg() ? $sebud->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_sebud"] = $sebud->pluck('cek_suhu_tubuh')->avg() ? $sebud->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_sebud"] = $sebud->pluck('petugas_pengawas_prokes')->avg() ? $sebud->pluck('petugas_pengawas_prokes')->avg(): 0;
+        $data["desinfeksi_sebud"] = $sebud->pluck('desinfeksi_berkala')->avg() ? $sebud->pluck('desinfeksi_berkala')->avg() : 0;
         $data["sebud"] = $sebud->pluck('fasilitas_cuci_tangan')->avg() + $sebud->pluck('sosialisasi_prokes')->avg() + $sebud->pluck('cek_suhu_tubuh')->avg() + $sebud->pluck('petugas_pengawas_prokes')->avg() + $sebud->pluck('desinfeksi_berkala')->avg();
 
 
@@ -397,11 +444,12 @@ class ProkesInstitusiController extends Controller
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_belanja"] = $belanja->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_belanja"] = $belanja->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_belanja"] = $belanja->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_belanja"] = $belanja->pluck('desinfeksi_berkala')->avg();
+
+        $data["cuci_tangan_belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg() ? $belanja->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_belanja"] = $belanja->pluck('sosialisasi_prokes')->avg() ? $belanja->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_belanja"] = $belanja->pluck('cek_suhu_tubuh')->avg() ? $belanja->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_belanja"] = $belanja->pluck('petugas_pengawas_prokes')->avg() ? $belanja->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_belanja"] = $belanja->pluck('desinfeksi_berkala')->avg() ? $belanja->pluck('desinfeksi_berkala')->avg() : 0;
         $data["belanja"] = $belanja->pluck('fasilitas_cuci_tangan')->avg() + $belanja->pluck('sosialisasi_prokes')->avg() + $belanja->pluck('cek_suhu_tubuh')->avg() + $belanja->pluck('petugas_pengawas_prokes')->avg() + $belanja->pluck('desinfeksi_berkala')->avg();
 
 
@@ -409,55 +457,55 @@ class ProkesInstitusiController extends Controller
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_publik"] = $publik->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_publik"] = $publik->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_publik"] = $publik->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_publik"] = $publik->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg() ? $publik->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_publik"] = $publik->pluck('sosialisasi_prokes')->avg() ? $publik->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_publik"] = $publik->pluck('cek_suhu_tubuh')->avg() ? $publik->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_publik"] = $publik->pluck('petugas_pengawas_prokes')->avg() ? $publik->pluck('petugas_pengawas_prokes')->avg(): 0;
+        $data["desinfeksi_publik"] = $publik->pluck('desinfeksi_berkala')->avg() ? $publik->pluck('desinfeksi_berkala')->avg() : 0;
         $data["publik"] = $publik->pluck('fasilitas_cuci_tangan')->avg() + $publik->pluck('sosialisasi_prokes')->avg() + $publik->pluck('cek_suhu_tubuh')->avg() + $publik->pluck('petugas_pengawas_prokes')->avg() + $publik->pluck('desinfeksi_berkala')->avg();
         
         $resto = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$resto}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_resto"] = $resto->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_resto"] = $resto->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_resto"] = $resto->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_resto"] = $resto->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg() ? $resto->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_resto"] = $resto->pluck('sosialisasi_prokes')->avg() ? $resto->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_resto"] = $resto->pluck('cek_suhu_tubuh')->avg() ? $resto->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_resto"] = $resto->pluck('petugas_pengawas_prokes')->avg() ? $resto->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_resto"] = $resto->pluck('desinfeksi_berkala')->avg() ? $resto->pluck('desinfeksi_berkala')->avg() : 0;
         $data["resto"] = $resto->pluck('fasilitas_cuci_tangan')->avg() + $resto->pluck('sosialisasi_prokes')->avg() + $resto->pluck('cek_suhu_tubuh')->avg() + $resto->pluck('petugas_pengawas_prokes')->avg() + $resto->pluck('desinfeksi_berkala')->avg();
 
         $transport = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$transport}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_transport"] = $transport->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_transport"] = $transport->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_transport"] = $transport->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_transport"] = $transport->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg() ? $transport->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_transport"] = $transport->pluck('sosialisasi_prokes')->avg() ? $transport->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_transport"] = $transport->pluck('cek_suhu_tubuh')->avg() ? $transport->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_transport"] = $transport->pluck('petugas_pengawas_prokes')->avg() ? $transport->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_transport"] = $transport->pluck('desinfeksi_berkala')->avg() ? $transport->pluck('desinfeksi_berkala')->avg() : 0;
         $data["transport"] = $transport->pluck('fasilitas_cuci_tangan')->avg() + $transport->pluck('sosialisasi_prokes')->avg() + $transport->pluck('cek_suhu_tubuh')->avg() + $transport->pluck('petugas_pengawas_prokes')->avg() + $transport->pluck('desinfeksi_berkala')->avg();
 
         $wisata = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$wisata}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_wisata"] = $wisata->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_wisata"] = $wisata->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_wisata"] = $wisata->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_wisata"] = $wisata->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_wisata"] = $wisata->pluck('sosialisasi_prokes')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["suhu_wisata"] = $wisata->pluck('cek_suhu_tubuh')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["pengawas_wisata"] = $wisata->pluck('petugas_pengawas_prokes')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["desinfeksi_wisata"] = $wisata->pluck('desinfeksi_berkala')->avg() ? $wisata->pluck('fasilitas_cuci_tangan')->avg() : 0;
         $data["wisata"] = $wisata->pluck('fasilitas_cuci_tangan')->avg() + $wisata->pluck('sosialisasi_prokes')->avg() + $wisata->pluck('cek_suhu_tubuh')->avg() + $wisata->pluck('petugas_pengawas_prokes')->avg() + $wisata->pluck('desinfeksi_berkala')->avg();
 
         $ibadah = \App\Models\ProkesInstitusi::where('lokasi_pantau', 'LIKE', "%{$ibadah}%")
         ->where('tanggal_pantau', $request["tanggal_pantau"])
         ->where('kecamatan_id', $request["kode_kecamatan"])
         ->get();
-        $data["cuci_tangan_ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg();
-        $data["prokes_ibadah"] = $ibadah->pluck('sosialisasi_prokes')->avg();
-        $data["suhu_ibadah"] = $ibadah->pluck('cek_suhu_tubuh')->avg();
-        $data["pengawas_ibadah"] = $ibadah->pluck('petugas_pengawas_prokes')->avg();
-        $data["desinfeksi_ibadah"] = $ibadah->pluck('desinfeksi_berkala')->avg();
+        $data["cuci_tangan_ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg() ? $ibadah->pluck('fasilitas_cuci_tangan')->avg() : 0;
+        $data["prokes_ibadah"] = $ibadah->pluck('sosialisasi_prokes')->avg() ? $ibadah->pluck('sosialisasi_prokes')->avg() : 0;
+        $data["suhu_ibadah"] = $ibadah->pluck('cek_suhu_tubuh')->avg() ? $ibadah->pluck('cek_suhu_tubuh')->avg() : 0;
+        $data["pengawas_ibadah"] = $ibadah->pluck('petugas_pengawas_prokes')->avg() ? $ibadah->pluck('petugas_pengawas_prokes')->avg() : 0;
+        $data["desinfeksi_ibadah"] = $ibadah->pluck('desinfeksi_berkala')->avg() ? $ibadah->pluck('desinfeksi_berkala')->avg() : 0;
         $data["ibadah"] = $ibadah->pluck('fasilitas_cuci_tangan')->avg() + $ibadah->pluck('sosialisasi_prokes')->avg() + $ibadah->pluck('cek_suhu_tubuh')->avg() + $ibadah->pluck('petugas_pengawas_prokes')->avg() + $ibadah->pluck('desinfeksi_berkala')->avg();
 
         return response()->json($data);
@@ -474,7 +522,8 @@ class ProkesInstitusiController extends Controller
         }
         return Datatables::of($data)
             ->addColumn('nama_user', function ($val) {
-                return $val->get_user ? $val->get_user->name : '';
+                $user = $val->get_user ? $val->get_user->name : '';
+                return "<a href=" . route('institusi.dokumen') . '?institusi_id=' . $val->id .">" . $user . "</a>";
             })
             ->addColumn('kelurahan', function ($val) {
                 return $val->get_desa ? $val->get_desa->nama_kelurahan : '';
@@ -504,12 +553,13 @@ class ProkesInstitusiController extends Controller
                 return '<div class="dropdown">
                             <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Aksi</button>
                             <div class="dropdown-menu" role="menu">
+                                <a class="dropdown-item" role="presentation" href=' . route('institusi.dokumen') . '?institusi_id=' . $val->id .'>Tambah Dokumen</a>
                                 <a class="dropdown-item edit" data-bind=\'' . $val . '\' role="presentation" href="javascript:void(0)" data-toggle="modal">Edit</a>
                                 <a class="dropdown-item delete" data-bind="' . $val->id . '" role="presentation" href="javascript:void(0)">Hapus</a>
                             </div>
                         </div>';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['aksi','nama_user'])
             ->make(true);
     }
 }

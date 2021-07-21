@@ -96,8 +96,8 @@
                         <a class="nav-link" href="{{ route('institusi.desa') }}?kecamatan={{request()->kecamatan}}&periode_kasus={{request()->periode_kasus}}&latitude={{request()->latitude}}&longitude={{request()->longitude}}"><strong>PROKES INSTITUSI </strong><span class="sr-only"></span></a>
                     </li>
                     @endif
-                    <li class="nav-item border-right">
-                        <a class="nav-link" href="javascript:void(0)"><strong>DOKUMENTASI PEMANTAUAN </strong><span class="sr-only"></span></a>
+                    <li class="nav-item border-right {{ request()->route()->getName() == 'dokumentasi' ? ' active' : '' }}">
+                        <a class="nav-link" href="{{ route('dokumentasi') }}"><strong>DOKUMENTASI PEMANTAUAN </strong><span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('logout.dashboard') }}" class="nav-link"
@@ -113,7 +113,7 @@
           </div>
       <!-- </div> -->
     </nav>
-    <main role="main ml-3">
+    <main role="main ml-3" style="margin-left: 30px; margin-right: 30px;">
         @yield('content')
     </main>
 
@@ -130,9 +130,8 @@
         // INITIALIZE DATEPICKER PLUGIN
         $('.datepicker').datepicker({
             clearBtn: true,
-            format: "dd/mm/yyyy"
+            format: 'yyyy-mm-dd'
         });
-
 
         // FOR DEMO PURPOSE
         $('#reservationDate').on('change', function () {

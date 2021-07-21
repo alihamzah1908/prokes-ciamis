@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
  */
 Route::group(['middleware' => 'auth.dashboard'], function () {
     Route::get('/', function () {
-        return view('frontend.peta');
+        // return view('frontend.peta');
+        return "Halaman Tidak Tersedia";
     })->name('peta.peta_prokes');
 
     Route::get('/institusi', function () {
@@ -44,6 +45,11 @@ Route::group(['middleware' => 'auth.dashboard'], function () {
     Route::get('/v2/institusi_desa', function(){
         return view('newtheme.prokes_institusi_desa');
     })->name('institusi.desa');
+
+    Route::get('/v2/dokumentasi', function(){
+        return view('newtheme.dokumentasi');
+    })->name('dokumentasi');
+
 });
 Route::get('/admin', function () {
     return view('auth.login');
@@ -76,6 +82,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin/datatable_institusi', 'ProkesInstitusiController@datatable_institusi')->name('institusi.datatable');
     Route::post('/admin/prokes_institusi', 'ProkesInstitusiController@store')->name('institusi.store');
     Route::delete('/admin/prokes_institusi', 'ProkesInstitusiController@destroy')->name('institusi.delete');
+    Route::get('/admin/prokes_individu/dokumen', 'ProkesIndividuController@dokumen')->name('individu.dokumen');
+    Route::post('/admin/upload_prokes_individu/dokumen', 'ProkesIndividuController@upload_dokumen_individu')->name('upload.dokumen_individu');
+    Route::get('/admin/prokes_institusi/dokumen', 'ProkesInstitusiController@dokumen')->name('institusi.dokumen');
+    Route::post('/admin/upload_prokes_institusi/dokumen', 'ProkesInstitusiController@upload_dokumen_institusi')->name('upload.dokumen_institusi');
     Route::get('/admin/get_desa', 'ProkesIndividuController@get_desa')->name('get.desa');
     Route::get('/admin/download_template', 'ProkesIndividuController@download_template')->name('download.template');
     Route::get('/admin/download_institusi', 'ProkesInstitusiController@download_institusi')->name('download.institusi');

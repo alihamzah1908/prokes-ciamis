@@ -122,8 +122,8 @@ class AuthController extends Controller
             $kecamatan = \App\Models\Kecamatan::where('code_kecamatan', $user->kode_kecamatan)->first();
             if ($user) {
                 if ($kecamatan) {
-                    // return redirect(route('individu.desa', ['kecamatan' => $user->kode_kecamatan, 'latitude' => $kecamatan->latitude, 'longitude' => $kecamatan->longitude]));
-                    return '<a href="https://prokes.ciamiskab.go.id/admin">prokes.ciamiskab.go.id</a>';
+                    return redirect(route('individu.desa', ['kecamatan' => $user->kode_kecamatan, 'latitude' => $kecamatan->latitude, 'longitude' => $kecamatan->longitude]));
+                    // return '<a href="https://prokes.ciamiskab.go.id/admin">prokes.ciamiskab.go.id</a>';
                 } else {
                     return redirect(route('prokes.individu'));
                 }

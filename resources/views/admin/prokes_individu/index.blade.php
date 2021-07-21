@@ -148,7 +148,7 @@
                             <label><strong>Lokasi Pantau</strong></label>
                         </div>
                         <div class="col-md-6">
-                            <select name="master_lokasi_pantau" class="form-control" id="master_lokasi_pantau">
+                            <select name="master_lokasi_pantau" class="form-control" id="master_lokasi_pantau" required>
                                 <option value="">Pilih Lokasi</option>
                                 <option value="Pusat Perbelanjaan">Pusat Perbelanjaan</option>
                                 <option value="Obyek Wisata">Obyek Wisata</option>
@@ -219,6 +219,20 @@
                             <input type="number" name="jumlah_tidak_jaga_jarak" id="jumlah_tidak_jaga_jarak" class="form-control" required placeholder="mohon isi dengan angka">
                         </div>
                     </div>
+                    <div class="row kolom mb-3">
+                        <div class="col-md-2">
+                            <label><strong>Upload Dokumen (Harap isi dengan file jpg/jpeg/png)</strong></label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="file" name="image[]" id="image" class="form-control" required placeholder="isi tanggal pantau" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3 d-flex justify-content-end">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-success mr-2 tambah-kolom"><i class="fa fa-plus" aria-hidden="true"></i> Tambah Dokumen</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -268,6 +282,16 @@
 <script src="{{ asset('assets/js/jquery-ui.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
+    var id = 2;
+    $('body').on('click','.tambah-kolom', function(){
+        var body = '<div class="row mb-3" >';
+        body += '<div class="col-md-10" style="margin-left: 150px;">';
+        body += '<input type="file" name="image['+ id +']" id="image" class="form-control" required placeholder="isi tanggal pantau" required>';
+        body += '</div>';
+        body += '</div>';
+        $('.kolom').append(body)
+        id++;
+    })
     var kodekec = $('#kd_kecamatan').val();
     $("#desa").show()
     $.ajax({
