@@ -1,4 +1,4 @@
-@extends('master')
+@extends('newmaster')
 @section('content')
 <style>
     td.details-control {

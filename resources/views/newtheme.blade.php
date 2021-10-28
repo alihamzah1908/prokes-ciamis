@@ -38,7 +38,7 @@
             */
             body {
                 min-height: 100vh;
-                background-color: #fafafa;
+                background-color: #ffffff;
             }
 
             .input-group {
@@ -88,6 +88,9 @@
                     <li class="border-right nav-item {{ request()->route()->getName() == 'prokes.institusi' ? ' active' : '' }}">
                         <a class="nav-link" href="{{ route('prokes.institusi') }}"><strong>PROKES INSTITUSI</strong> <span class="sr-only"></span></a>
                     </li>
+                    <li class="nav-item border-right {{ request()->route()->getName() == 'dokumentasi' ? ' active' : '' }}">
+                        <a class="nav-link" href="{{ route('dokumentasi') }}"><strong>DOKUMENTASI PEMANTAUAN </strong><span class="sr-only"></span></a>
+                    </li>
                     @else 
                     <li class="border-right nav-item {{ request()->route()->getName() == 'prokes.individu' ? ' active' : '' }}">
                         <a class="nav-link" href="{{ route('individu.desa') }}?kecamatan={{request()->kecamatan}}&periode_kasus={{request()->periode_kasus}}&latitude={{request()->latitude}}&longitude={{request()->longitude}}"><strong>PROKES INDIVIDU</strong></a>
@@ -95,10 +98,10 @@
                     <li class="border-right nav-item {{ request()->route()->getName() == 'prokes.institusi' ? ' active' : '' }}">
                         <a class="nav-link" href="{{ route('institusi.desa') }}?kecamatan={{request()->kecamatan}}&periode_kasus={{request()->periode_kasus}}&latitude={{request()->latitude}}&longitude={{request()->longitude}}"><strong>PROKES INSTITUSI </strong><span class="sr-only"></span></a>
                     </li>
-                    @endif
                     <li class="nav-item border-right {{ request()->route()->getName() == 'dokumentasi' ? ' active' : '' }}">
-                        <a class="nav-link" href="{{ route('dokumentasi') }}"><strong>DOKUMENTASI PEMANTAUAN </strong><span class="sr-only"></span></a>
+                        <a class="nav-link" href="{{ route('dokumentasi') }}?kecamatan={{request()->kecamatan}}&periode_kasus={{request()->periode_kasus}}&latitude={{request()->latitude}}&longitude={{request()->longitude}}"><strong>DOKUMENTASI PEMANTAUAN </strong><span class="sr-only"></span></a>
                     </li>
+                    @endif
                     <li class="nav-item">
                         <a href="{{ route('logout.dashboard') }}" class="nav-link"
                             onclick="event.preventDefault(); document.getElementById('logout-forms').submit();">

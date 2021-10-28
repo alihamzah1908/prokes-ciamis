@@ -1,10 +1,11 @@
-@extends('master')
+@extends('newmaster')
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/jquery.ui.timepicker.css?v=0.3.3') }}" type="text/css" />
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <div class="row">
     <div class="col-md-6">
-        <button class="btn btn-success btn-sm mb-4 ml-2 add">
+        <button class="btn btn-success btn-sm mb-4 ml-2 add tambah">
             <i class="fa fa-plus" aria-hidden="true"></i>  Tambah Data
         </button>
     </div>
@@ -46,6 +47,7 @@
     <table class="table" id="example">
         <thead>
             <tr>
+                <th></th>
                 <th>Nama User</th>
                 <th>Desa/Kelurahan</th>
                 <th>Kecamatan</th>
@@ -89,7 +91,7 @@
                         <div class="col-md-6" id="kecamatan">
                             @if(Auth::user()->role == 'Admin')
                             <input type="hidden" name="kecamatan_id" value="{{ Auth::user()->kode_kecamatan }}" />
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
+                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled required>
                                 <option value="">Pilih Kecamatan</option>
                                 @php
                                 $kecamatan = \App\Models\Kecamatan::orderBy('kecamatan','asc')->get()
@@ -99,7 +101,7 @@
                                 @endforeach
                             </select>
                             @elseif(Auth::user()->role == 'super admin')
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control">
+                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" required>
                                 <option value="">Pilih Kecamatan</option>
                                 @php
                                 $kecamatan = \App\Models\Kecamatan::orderBy('kecamatan','asc')->get()
@@ -110,7 +112,7 @@
                             </select>
                             @else 
                             <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}" />
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
+                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" required disabled>
                                 <option value="">Pilih Kecamatan</option>
                                 @php
                                 $kecamatan = \App\Models\Kecamatan::all()
@@ -263,8 +265,11 @@
                         <div class="col-md-2">
                             <label><strong>Upload Dokumen (Harap isi dengan file jpg/jpeg/png)</strong></label>
                         </div>
-                        <div class="col-md-6">
-                            <input type="file" name="image[]" id="image" class="form-control" required placeholder="isi tanggal pantau" required>
+                        <div class="col-md-6 file_dokumen">
+                            <input type="file" name="image[]" id="image" class="form-control image" required placeholder="isi tanggal pantau">
+                        </div>
+                        <div class="col-md-6 file_dokumen_new" style="display: none;"> 
+                            
                         </div>
                     </div>
                     <div class="row mb-3 d-flex justify-content-end">
@@ -274,7 +279,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-success">Simpan</button>
                 </div>
                 <input type="hidden" name="id" id="id" value=""/>
@@ -325,7 +330,7 @@ $(document).ready(function(){
     $('body').on('click','.tambah-kolom', function(){
         var body = '<div class="row mb-3" >';
         body += '<div class="col-md-10" style="margin-left: 150px;">';
-        body += '<input type="file" name="image['+ id +']" id="image" class="form-control" required placeholder="isi tanggal pantau" required>';
+        body += '<input type="file" name="image['+ id +']" class="form-control image_append" required placeholder="isi tanggal pantau" required>';
         body += '</div>';
         body += '</div>';
         $('.kolom').append(body)
@@ -347,8 +352,12 @@ $(document).ready(function(){
             $('#desa_id').append(elementNew)
         })
     })
-    $('body').on('click','.add', function(){
+    $('body').on('click','.tambah', function(){
         $('#exampleModal').modal('show')
+        var input = $('.file_dokumen').find('#image').length
+        if(input == 0){
+           $('.file_dokumen').append('<input type="file" name="image[]" id="image" class="form-control image" required placeholder="isi tanggal pantau">')
+        }
     })
     $('body').on('change', '#master_lokasi_pantau', function(){
         $('#lokasi_pantau').show();
@@ -372,11 +381,10 @@ $(document).ready(function(){
             }
         }).done(function(response){
             $("#desa_id").html("")
-            var elementNew = '<option value="">Pilih Desa</option>';
             $.each(response, function(index, value){
-                elementNew += '<option value=' + value.kode_kelurahan +'>' + value.nama_kelurahan +'</option>';
-            })
-            $('#desa_id').append(elementNew)
+                elementNew = '<option value=' + value.kode_kelurahan +'>' + value.nama_kelurahan +'</option>';
+                $('#desa_id').append(elementNew)
+           })
         })
     })
     $('body').on('click','.download-template', function(){
@@ -448,6 +456,32 @@ $(document).ready(function(){
                 $('#desa_id').append(elementNew)
             })
         });
+
+        $.ajax({
+            url : "{{ route('get.image_institusi') }}",
+            dataType: 'json',
+            method: 'get',
+            data: {
+                "institusi_id": data.id,
+            }
+        }).done(function(response){
+            if(response.length > 0){
+                $('#image').remove()
+                $('.image').removeAttr('required')
+                $('.file_dokumen_new').show()
+                $.each(response, function(index, value){
+                    elementNew = '<input type="file" name="image[]" class="form-control image image_edit" placeholder="isi tanggal pantau" value='+ value.image +'><img src="{{ asset("dokumen_institusi") }}/' + value.image + '" width="100" height="100" style="margin-right: 10px;margin-top: 10px;"/>';
+                    $('.file_dokumen_new').append(elementNew)
+                })
+            }else {
+                var input = $('.file_dokumen').find('#image').length
+                if(input == 0){
+                    $('.file_dokumen').append('<input type="file" name="image[]" id="image" class="form-control image" required placeholder="isi tanggal pantau">')
+                }
+                $('.image').prop('required', true)
+                $('.file_dokumen_new').hide()
+            }
+        });
     })
     $('body').on('click', '.delete', function(){
         if(confirm('Apakah anda yakin menghapus data ini ?')){
@@ -486,6 +520,7 @@ $(document).ready(function(){
         serverSide: true,
         ajax: url,
         columns: [
+            { data: 'id', visible: false},
             { data: "nama_user"},
             { data: "kelurahan"},
             { data: "kecamatan"},
@@ -502,7 +537,65 @@ $(document).ready(function(){
             { data: "created_at"},
             { data: "aksi" },
         ],
-        "order": [[13, 'desc']],
+        "order": [[0, 'desc']],
+    })
+
+    $('body').on('change', '#image', function(){
+        var fileInput = $("#image").val()
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        // alert(allowedExtensions.exec(fileInput))
+        if (!allowedExtensions.exec(fileInput)) {
+            $("#image").val('')
+            alert('Harap Input dokumen dengan file jpg, jpeg, png');
+            return false;
+        }
+    })
+    
+    $('body').on('change', '.image_append', function(){
+        var fileInput = $(".image_append").val()
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        // alert(allowedExtensions.exec(fileInput))
+        if (!allowedExtensions.exec(fileInput)) {
+            $(".image").val('')
+            alert('Harap Input dokumen dengan file jpg, jpeg, png');
+            return false;
+        }
+    })
+
+    $('body').on('click','.modal-close', function(){
+        $("#id").val(' ')
+        $('#lokasi_pantau').show()
+        $("#master_lokasi_pantau").val('')
+        $("#lokasi_pantau").val('')
+        $("#tanggal_pantau").val('')
+        $("#jam_pantau").val('')
+        $("#selesai_jam_pantau").val('')
+        $("#jumlah_pakai_masker").val('')
+        $("#jumlah_tidak_pakai").val('')
+        $("#jumlah_jaga_jarak").val('')
+        $("#jumlah_tidak_jaga_jarak").val('')
+        $("input").prop('required',true);
+        $('img').remove()
+        $(".image_edit").remove()
+        $(".image_append").remove()
+    })
+
+    $('body').on('click','.close', function(){
+        $("#id").val(' ')
+        $('#lokasi_pantau').show()
+        $("#master_lokasi_pantau").val('')
+        $("#lokasi_pantau").val('')
+        $("#tanggal_pantau").val('')
+        $("#jam_pantau").val('')
+        $("#selesai_jam_pantau").val('')
+        $("#jumlah_pakai_masker").val('')
+        $("#jumlah_tidak_pakai").val('')
+        $("#jumlah_jaga_jarak").val('')
+        $("#jumlah_tidak_jaga_jarak").val('')
+        $("input").prop('required', true);
+        $('img').remove()
+        $(".image_edit").remove()
+        $(".image_append").remove()
     })
 })
 </script>

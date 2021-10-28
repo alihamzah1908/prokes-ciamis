@@ -87,8 +87,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/admin/prokes_institusi/dokumen', 'ProkesInstitusiController@dokumen')->name('institusi.dokumen');
     Route::post('/admin/upload_prokes_institusi/dokumen', 'ProkesInstitusiController@upload_dokumen_institusi')->name('upload.dokumen_institusi');
     Route::get('/admin/get_desa', 'ProkesIndividuController@get_desa')->name('get.desa');
+    Route::get('/admin/get_image_individu', 'ProkesIndividuController@get_image_individu')->name('get.image_individu');
+    Route::get('/admin/get_image_institusi', 'ProkesInstitusiController@get_image_institusi')->name('get.image_institusi');
     Route::get('/admin/download_template', 'ProkesIndividuController@download_template')->name('download.template');
     Route::get('/admin/download_institusi', 'ProkesInstitusiController@download_institusi')->name('download.institusi');
+    Route::get('/admin/report', 'ReportController@index')->name('report.index');
+    Route::get('/admin/report/blank_page', 'ReportController@blank_page')->name('blank.page');
     Route::post('/admin/import_prokes', 'ProkesIndividuController@import_prokes')->name('import.prokes');
     Route::post('/admin/import_prokes_institusi', 'ProkesInstitusiController@import_prokes_institusi')->name('import.prokes_institusi');
+    Route::get('/admin/download_report', 'ReportController@download_report')->name('download.report');
 });

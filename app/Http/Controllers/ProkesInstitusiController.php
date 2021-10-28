@@ -147,19 +147,19 @@ class ProkesInstitusiController extends Controller
             $total_prokes = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg() + $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg() + $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg() + $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg() + $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
             switch ($request["sebaran_kasus"]) {
                 case 'cuci':
-                    $total = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg();
+                    $total = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg() * 5;
                     break;
                 case 'sosialisasi':
-                    $total = $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg();
+                    $total = $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg() * 5;
                     break;
                 case 'suhu':
-                    $total = $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg();
+                    $total = $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg() * 5;
                     break;
                 case 'petugas':
-                    $total = $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg();
+                    $total = $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg() * 5;
                     break;
                 case 'desinfeksi':
-                    $total = $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
+                    $total = $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg() * 5;
                     break;
                 default:
                     $total = $total_prokes;
@@ -169,6 +169,7 @@ class ProkesInstitusiController extends Controller
             $arrx["properties"] = [
                 "name" => $val->kecamatan,
                 "density" => round($total),
+                "y" => round($total),
                 "total_kasus" => 0,
                 // "total_vaksin_2" => $peserta[0]->total_vaksin_2,
                 // "kasus" => ucfirst($request["sebaran_kasus"]),
@@ -217,19 +218,19 @@ class ProkesInstitusiController extends Controller
             $total_prokes = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg() + $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg() + $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg() + $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg() + $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
             switch ($request["sebaran_kasus"]) {
                 case 'cuci':
-                    $total = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg();
+                    $total = $kepatuhan_prokes->pluck('fasilitas_cuci_tangan')->avg() * 5;
                     break;
                 case 'sosialisasi':
-                    $total = $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg();
+                    $total = $kepatuhan_prokes->pluck('sosialisasi_prokes')->avg() * 5;
                     break;
                 case 'suhu':
-                    $total = $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg();
+                    $total = $kepatuhan_prokes->pluck('cek_suhu_tubuh')->avg() * 5;
                     break;
                 case 'petugas':
-                    $total = $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg();
+                    $total = $kepatuhan_prokes->pluck('petugas_pengawas_prokes')->avg() * 5;
                     break;
                 case 'desinfeksi':
-                    $total = $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg();
+                    $total = $kepatuhan_prokes->pluck('desinfeksi_berkala')->avg() * 5;
                     break;
                 default:
                     $total = $total_prokes;
@@ -239,6 +240,7 @@ class ProkesInstitusiController extends Controller
             $arrx["properties"] = [
                 "name" => $val->nama_kelurahan,
                 "density" => round($total),
+                "y" => round($total),
                 "total_kasus" => 0,
                 // "total_vaksin_2" => $peserta[0]->total_vaksin_2,
                 // "kasus" => ucfirst($request["sebaran_kasus"]),
@@ -304,6 +306,60 @@ class ProkesInstitusiController extends Controller
             }
         }
         return redirect(route('institusi.dokumen', ['institusi_id' => $request["institusi_id"]]));
+    }
+
+    public function get_image_institusi(Request $request)
+    {
+        $doc = \App\Models\DokumenInstitusi::where('institusi_id', $request["institusi_id"])->get();
+        return response()->json($doc);
+    }
+
+    public function get_prokes_institusi(Request $request)
+    {
+        $data = \App\Models\ProkesInstitusi::all();
+        $arr = [];
+        foreach($data as $val){
+            $arrx = [
+                "id" => $val->id,
+                "nama_user" => $val->get_user->name,
+                "desa" => $val->get_desa->nama_kelurahan,
+                "kecamatan" => $val->get_kecamatan->kecamatan,
+                "lokasi_pantau" => $val->kode_lokasi_pantau,
+                "tanggal_pantau" => $val->tanggal_pantau,
+                "jam_pantau" => $val->jam_pantau,
+                "selesai_jam_pantau" => $val->selesai_jam_pantau,
+                "fasilitas_cuci_tangan" => $val->fasilitas_cuci_tangan,
+                "sosialisasi_prokes" => $val->sosialisasi_prokes,
+                "cek_suhu_tubuh" => $val->cek_suhu_tubuh,
+                "petugas_pengawas_prokes" => $val->petugas_pengawas_prokes,
+                "desinfeksi_berkala" => $val->desinfeksi_berkala,
+            ];
+            $arr[] = $arrx;
+        }
+        return response()->json($arr);
+    }
+
+    public function get_prokes_institusi_raw(Request $request)
+    {
+        $data = \App\Models\ProkesInstitusi::all();
+        $arr = [];
+        foreach($data as $val){
+            $arrx = [
+                "kecamatan" => $val->kecamatan_id,
+                "desa" => $val->desa_id,
+                "lokasi_pantau" => $val->lokasi_pantau,
+                "tanggal_pantau" => $val->tanggal_pantau,
+                "jam_pantau" => $val->jam_pantau,
+                "jam_selesai_pantau" => $val->selesai_jam_pantau,
+                "fasilitas_cuci_tangan" => $val->fasilitas_cuci_tangan,
+                "sosialisasi_prokes" => $val->sosialisasi_prokes,
+                "cek_suhu_tubuh" => $val->cek_suhu_tubuh,
+                "petugas_pengawas_prokes" => $val->petugas_pengawas_prokes,
+                "desinfeksi_berkala" => $val->desinfeksi_berkala,
+            ];
+            $arr[] = $arrx;
+        }
+        return response()->json($arr);
     }
 
     public function get_lokasi_pantau_institusi(Request $request){

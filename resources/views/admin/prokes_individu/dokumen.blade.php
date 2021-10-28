@@ -1,4 +1,4 @@
-@extends('master')
+@extends('newmaster')
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/jquery.ui.timepicker.css?v=0.3.3') }}" type="text/css" />
 <link rel="stylesheet" href="{{ asset('assets/css/jquery-ui.css') }}">
@@ -7,76 +7,88 @@
     <!-- <p class="card-category">Complete your profile</p> -->
 </div>
 <ol class="breadcrumb mb-4 mt-4">
-    <li class="breadcrumb-item"><a href="{{ route('prokes.individu') }}">Prokes Individu </a></li>
+    <li class="breadcrumb-item"><a href="{{ route('prokes.index') }}">Prokes Individu </a></li>
     <li class="breadcrumb-item active">Dokumen Individu</li>
 </ol>
-<form action="{{ route('upload.dokumen_individu') }}" method="post" enctype="multipart/form-data">
-    @csrf
-    <div class="row">
-    @php 
-    if(Auth::user()->role == 'Staff'){
-        $kode = Auth::user()->id;
-        $val1 = \App\Models\User::select('kode_kecamatan')->where('id', Auth::user()->parent_admin)->first();
-        $kode_kecamatan = $val1->kode_kecamatan;
-    }elseif(Auth::user()->role == 'Admin'){
-        $val2 = \App\Models\Prokes::find(request()->individu_id);
-        $kode_desa = $val2->kode_desa ?? '';
-        $kode = Auth::user()->kode_kecamatan;
-        $kode_kecamatan = Auth::user()->kode_kecamatan;
-    }else{
-        $kode = $kode = Auth::user()->id;
-        $val2 = \App\Models\Prokes::find(request()->individu_id);
-        $kode_kecamatan = $val2->kode_kecamatan;
-        $kode_desa = $val2->kode_desa ?? '';
-    }
-    @endphp
-    @if(Auth::user()->kode_kecamatan == '')
-        <input type="hidden" id="kd_kecamatan" value="{{ $kode_kecamatan }}" />
-        <input type="hidden" id="kd_desa" value="{{ $kode_desa }}" />
-    @else 
-        <input type="hidden" id="kd_kecamatan" value="{{ $kode_kecamatan }}" />
-        <input type="hidden" id="kd_desa" value="{{ $kode_desa }}" />
-    @endif
-        <div class="col-md-2">
-            <label><strong>Alamat</strong></label>
+@php 
+if(Auth::user()->role == 'Staff'){
+    $kode = Auth::user()->id;
+    $val1 = \App\Models\User::select('kode_kecamatan')->where('id', Auth::user()->parent_admin)->first();
+    $kode_kecamatan = $val1->kode_kecamatan;
+}elseif(Auth::user()->role == 'Admin'){
+    $val2 = \App\Models\Prokes::find(request()->individu_id);
+    $kode_desa = $val2->kode_desa ?? '';
+    $kode = Auth::user()->kode_kecamatan;
+    $kode_kecamatan = Auth::user()->kode_kecamatan;
+}else{
+    $kode = $kode = Auth::user()->id;
+    $val2 = \App\Models\Prokes::find(request()->individu_id);
+    $kode_kecamatan = $val2->kode_kecamatan;
+    $kode_desa = $val2->kode_desa ?? '';
+}
+@endphp
+<!-- Nav tabs -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#data">Form Isian Data</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#dokumentasi">Dokumentasi</a>
+    </li>
+</ul>
+<!-- Tab panes -->
+<div class="tab-content">
+  <div class="tab-pane active" id="data">
+    <form action="{{ route('upload.dokumen_individu') }}" method="post" enctype="multipart/form-data">
+        @csrf
+        <div class="row mt-4">
+        @if(Auth::user()->kode_kecamatan == '')
+            <input type="hidden" id="kd_kecamatan" value="{{ $kode_kecamatan }}" />
+            <input type="hidden" id="kd_desa" value="{{ $kode_desa }}" />
+        @else 
+            <input type="hidden" id="kd_kecamatan" value="{{ $kode_kecamatan }}" />
+            <input type="hidden" id="kd_desa" value="{{ $kode_desa }}" />
+        @endif
+            <div class="col-md-2">
+                <label><strong>Alamat</strong></label>
+            </div>
+            <div class="col-md-6" id="kecamatan">
+                @if(Auth::user()->role == 'Admin')
+                <input type="hidden" name="kecamatan_id" value="{{ Auth::user()->kode_kecamatan }}" />
+                <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
+                    <option value="">Pilih Kecamatan</option>
+                    @php
+                    $kecamatan = \App\Models\Kecamatan::all()
+                    @endphp
+                    @foreach($kecamatan as $val)
+                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                    @endforeach
+                </select>
+                @elseif(Auth::user()->role == 'super admin')
+                <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}"/>
+                <select name="kecamatan_id" id="kecamatan_id" class="form-control" required disabled>
+                    <option value="">Pilih Kecamatan</option>
+                    @php
+                    $kecamatan = \App\Models\Kecamatan::all()
+                    @endphp
+                    @foreach($kecamatan as $val)
+                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                    @endforeach
+                </select>
+                @else
+                <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}" />
+                <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
+                    <option value="">Pilih Kecamatan</option>
+                    @php
+                    $kecamatan = \App\Models\Kecamatan::all()
+                    @endphp
+                    @foreach($kecamatan as $val)
+                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                    @endforeach
+                </select>
+                @endif
+            </div>
         </div>
-        <div class="col-md-6" id="kecamatan">
-            @if(Auth::user()->role == 'Admin')
-            <input type="hidden" name="kecamatan_id" value="{{ Auth::user()->kode_kecamatan }}" />
-            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
-                <option value="">Pilih Kecamatan</option>
-                @php
-                $kecamatan = \App\Models\Kecamatan::all()
-                @endphp
-                @foreach($kecamatan as $val)
-                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                @endforeach
-            </select>
-            @elseif(Auth::user()->role == 'super admin')
-            <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}"/>
-            <select name="kecamatan_id" id="kecamatan_id" class="form-control" required disabled>
-                <option value="">Pilih Kecamatan</option>
-                @php
-                $kecamatan = \App\Models\Kecamatan::all()
-                @endphp
-                @foreach($kecamatan as $val)
-                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                @endforeach
-            </select>
-            @else
-            <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}" />
-            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled>
-                <option value="">Pilih Kecamatan</option>
-                @php
-                $kecamatan = \App\Models\Kecamatan::all()
-                @endphp
-                @foreach($kecamatan as $val)
-                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                @endforeach
-            </select>
-            @endif
-        </div>
-    </div>
         <div class="row mb-3 mt-3" id="desa" style='display:none;'>
             <div class="col-md-2">
                 <label><strong>Pilih Desa</strong></label>
@@ -135,7 +147,7 @@
                     <label><strong>Upload Dokumen (Harap isi dengan file jpg/jpeg/png)</strong></label>
                 </div>
                 <div class="col-md-6">
-                    <input type="file" name="image[]" id="image" class="form-control" required placeholder="isi tanggal pantau" required>
+                    <input type="file" name="image[]" id="image" class="form-control" required placeholder="isi tanggal pantau">
                 </div>
             </div>
         </div>
@@ -158,63 +170,68 @@
                 <input type="hidden" name="individu_id" value="{{ request()->individu_id }}" />
             </div>
         </div>
-        <div class="row border-top">
+    </form>
+  </div>
+    <div class="tab-pane fade" id="dokumentasi"> 
+        <div class="row ml-1">
             @php 
             $image = \App\Models\DokumenIndividu::where('individu_id', request()->individu_id)->get();
             @endphp
             @foreach($image as $val)
-            <img src="{{ asset('dokumen_individu') }}/{{ $val->image }}" width="100" height="100" style="margin-right: 10px;margin-top: 10px;"/>
+            <a target="_blank" href="{{ asset('dokumen_individu') }}/{{ $val->image }}">  
+                <img src="{{ asset('dokumen_individu') }}/{{ $val->image }}" width="100" height="100" style="margin-right: 20px;margin-top: 10px;"/>
+            </a>
             @endforeach
         </div>
-        @endsection
     </div>
-</form> 
+</div>
+@endsection
 @push('scripts')
 <script src="https://cdn.datatables.net/fixedheader/3.1.8/css/fixedHeader.dataTables.min.css"></script>
 <script type="text/javascript" src="{{ asset('assets/js/jquery.ui.timepicker.js?v=0.3.3') }}"></script>
 <script src="{{ asset('assets/js/jquery-ui.js') }}"></script>
 <script>
-    $(document).ready(function(){
-        var id = 2;
-        $('body').on('click','.tambah-kolom', function(){
-            var body = '<div class="form' + id + '">';
-            body += '<div class="row mb-3">';
-            body += '<div class="col-md-4" style="margin-left: 205px;">';
-            body += '<input type="file" name="image['+ id +']" id="image" class="form-control" required placeholder="isi tanggal pantau" required>';
-            body += '</div>';
-            body += '</div>';
-            body += '</div>';
-            $('.kolom').append(body)
-            id++;
-        })
-        $("#tanggal_pantau").datepicker();
-        $('#jam_pantau').timepicker({
-            showPeriodLabels: false
-        });
+$(document).ready(function(){
+    var id = 2;
+    $('body').on('click','.tambah-kolom', function(){
+        var body = '<div class="form' + id + '">';
+        body += '<div class="row mb-3">';
+        body += '<div class="col-md-4" style="margin-left: 205px;">';
+        body += '<input type="file" name="image['+ id +']" id="image" class="form-control" required placeholder="isi tanggal pantau" required>';
+        body += '</div>';
+        body += '</div>';
+        body += '</div>';
+        $('.kolom').append(body)
+        id++;
+    })
+    $("#tanggal_pantau").datepicker();
+    $('#jam_pantau').timepicker({
+        showPeriodLabels: false
+    });
 
-        $('body').on('change', '#master_lokasi_pantau', function(){
-            $('#lokasi_pantau').show();
+    $('body').on('change', '#master_lokasi_pantau', function(){
+        $('#lokasi_pantau').show();
+    })
+    var kodekec = $('#kd_kecamatan').val();
+    var kd_desa = $('#kd_desa').val();
+    $("#desa").show()
+    $.ajax({
+        url : "{{ route('get.desa') }}",
+        dataType: 'json',
+        method: 'get',
+        data: {
+            "code_kecamatan": kodekec
+        }
+    }).done(function(response){
+        $("#desa_id").html("")
+        $.each(response, function(index, value){
+            var selected = value.kode_kelurahan == kd_desa ? ' selected' : ''
+            elementNew = '<option value=' + value.kode_kelurahan +' '+ selected +'>' + value.nama_kelurahan +'</option>';
+            $('#desa_id').append(elementNew)
         })
-        var kodekec = $('#kd_kecamatan').val();
-        var kd_desa = $('#kd_desa').val();
-        $("#desa").show()
-        $.ajax({
-            url : "{{ route('get.desa') }}",
-            dataType: 'json',
-            method: 'get',
-            data: {
-                "code_kecamatan": kodekec
-            }
-        }).done(function(response){
-            $("#desa_id").html("")
-            $.each(response, function(index, value){
-                var selected = value.kode_kelurahan == kd_desa ? ' selected' : ''
-                elementNew = '<option value=' + value.kode_kelurahan +' '+ selected +'>' + value.nama_kelurahan +'</option>';
-                $('#desa_id').append(elementNew)
-            })
-        });
+    });
 
-        $('body').on('change','#kecamatan_id', function(){
+    $('body').on('change','#kecamatan_id', function(){
         var code_kecamatan = $(this).val()
         $("#desa").show()
         $.ajax({
@@ -232,6 +249,28 @@
             })
         })
     })
+
+    $('body').on('change', '#image', function(){
+        var fileInput = $("#image").val()
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        // alert(allowedExtensions.exec(fileInput))
+        if (!allowedExtensions.exec(fileInput)) {
+            $("#image").val('')
+            alert('Harap Input dokumen dengan file jpg, jpeg, png');
+            return false;
+        }
     })
+
+    $('body').on('change', '.image', function(){
+        var fileInput = $(".image").val()
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        // alert(allowedExtensions.exec(fileInput))
+        if (!allowedExtensions.exec(fileInput)) {
+            $(".image").val('')
+            alert('Harap Input dokumen dengan file jpg, jpeg, png');
+            return false;
+        }
+    })
+})
 </script>
 @endpush

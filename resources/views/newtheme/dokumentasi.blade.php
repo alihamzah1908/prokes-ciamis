@@ -1,53 +1,102 @@
 @extends('newtheme')
 @section('content')
 <style>
-div.gallery {
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-}
+    @import url('https://fonts.googleapis.com/css?family=Inconsolata|Source+Sans+Pro:200,300,400,600');
+    h1 {
+        font-family: 'Source Sans Pro', sans-serif;
+        font-size: 22px;
+        color: #151E3F;
+        font-weight: 300;
+        letter-spacing: 2px;
+    }
 
-div.gallery:hover {
-  border: 1px solid #777;
-}
+    .responsive {
+        padding: 0 6px;
+        float: left;
+        width: 24.99999%;
+    }
 
-div.gallery img {
-  width: 100%;
-  height: auto;
-}
+    .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        > * {
+            margin: 5px;
+        }
+    }
 
-div.desc {
-  padding: 15px;
-  text-align: center;
-}
+    .media {
+        width: 300px;
+        height: 200px;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
 
-* {
-  box-sizing: border-box;
-}
+    .layer {
+        opacity: 0;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 10px;
+        height: 90%;
+        background: #FFF;
+        color: #151E3F;
+        transition: all 0.9s ease;
+        p {
+            transition: all 0.9s ease;
+            transform: scale(0.1)
+        }
+    }
 
-.responsive {
-  padding: 0 6px;
-  float: left;
-  width: 24.99999%;
-}
+    p {
+        font-family: 'Inconsolata', monospace;
+        text-align: center;
+        font-size: 15px;
+        letter-spacing:1px;
+    }
+    .desc {
+        font-family: 'Inconsolata', monospace;
+        text-align: left;
+        font-size: 15px;
+        letter-spacing:1px;
+    }
 
-@media only screen and (max-width: 700px) {
-  .responsive {
-    width: 49.99999%;
-    margin: 6px 0;
-  }
-}
+    .media:hover .layer {
+        opacity: 0.8;
+        width: 90%;
+        transition: all 0.5s ease;
+        p {
+            transform: scale(1);
+            transition: all 0.9s ease;
+        }
+    }
 
-@media only screen and (max-width: 500px) {
-  .responsive {
-    width: 100%;
-  }
-}
+    @media only screen and (max-width: 700px) {
+        .responsive {
+            width: 49.99999%;
+            margin: 6px 0;
+        }
+    }
 
-.clearfix:after {
-  content: "";
-  display: table;
-  clear: both;
-}
+    @media only screen and (max-width: 500px) {
+    .responsive {
+        width: 100%;
+        }
+    }
+
+    .clearfix:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
 </style>
 <div class="row ml-3 mr-3 mt-4">
     <div class="col-lg-6" style="margin-top: 25px;">
@@ -89,24 +138,33 @@ div.desc {
     if(Auth::user()->role == 'Admin'){
         if(request()->dokumentasi == 'individu'){
             $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)
-            ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
-            ->get();
+                ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
+                ->orderBy('id','desc')
+                ->get();
         }elseif(request()->dokumentasi == 'institusi'){
             $image = \App\Models\DokumenInstitusi::where('tanggal_pantau', $tanggal_pantau)
-            ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
-            ->get();
+                ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
+                ->orderBy('id','desc')
+                ->get();
         }else{
             $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)
-            ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
-            ->get();
+                ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
+                ->orderBy('id','desc')
+                ->get();
         }
     }else{
         if(request()->dokumentasi == 'individu'){
-            $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)->get();
+            $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)
+                ->orderBy('id','desc')
+                ->get();
         }elseif(request()->dokumentasi == 'institusi'){
-            $image = \App\Models\DokumenInstitusi::where('tanggal_pantau', $tanggal_pantau)->get();
+            $image = \App\Models\DokumenInstitusi::where('tanggal_pantau', $tanggal_pantau)
+                ->orderBy('id','desc')
+                ->get();
         }else{
-            $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)->get();
+            $image = \App\Models\DokumenIndividu::where('tanggal_pantau', $tanggal_pantau)
+                ->orderBy('id','desc')
+                ->get();
         }
     }
     @endphp
@@ -115,27 +173,48 @@ div.desc {
     <div class="responsive mt-4">
         <div class="gallery">
             @if(request()->dokumentasi == 'individu')
-                <a target="_blank" href="{{ asset('dokumen_individu') }}/{{ $img->image }}">
-                    <img src="{{ asset('dokumen_individu') }}/{{ $img->image }}" alt="Cinque Terre" width="600" height="400">
+                <a target="_blank" href="{{ asset('dokumen_individu') }}/{{ $img->image }}">  
+                    <div class="wrapper">
+                        <div class="media">
+                            <div class="layer">
+                                <p>Prokes Institusi</p>
+                            </div>
+                            <img src="{{ asset('dokumen_individu') }}/{{ $img->image }}" alt="" />
+                        </div>
+                    </div>
                 </a>
             @elseif(request()->dokumentasi == 'institusi')
                 <a target="_blank" href="{{ asset('dokumen_institusi') }}/{{ $img->image }}">
-                    <img src="{{ asset('dokumen_institusi') }}/{{ $img->image }}" alt="Cinque Terre" width="600" height="400">
+                    <div class="wrapper">
+                        <div class="media">
+                            <div class="layer">
+                                <p>Prokes Institusi</p>
+                            </div>
+                            <img src="{{ asset('dokumen_institusi') }}/{{ $img->image }}" alt="" />
+                        </div>
+                    </div>
                 </a>
             @else
                 <a target="_blank" href="{{ asset('dokumen_individu') }}/{{ $img->image }}">
-                    <img src="{{ asset('dokumen_individu') }}/{{ $img->image }}" alt="Cinque Terre" width="600" height="400">
+                    <div class="wrapper">
+                        <div class="media">
+                            <div class="layer">
+                                <p>Prokes Individu</p>
+                            </div>
+                            <img src="{{ asset('dokumen_individu') }}/{{ $img->image }}" alt="" />
+                        </div>
+                    </div>
                 </a>
             @endif
-            <p class="ml-4 mt-2"><strong>Tanggal Pantau</strong> : {{ date('d M Y', strtotime($img->tanggal_pantau)) }}</p>
-            <p class="ml-4 mt-2"><strong>Lokasi Pantau</strong> : {{ $img->lokasi_pantau }}</p>
-            <p class="ml-4 mt-2"><strong>Desa</strong> : {{ $img->get_desa->nama_kelurahan }}</p>
-            <p class="ml-4 mt-2"><strong>Kecamatan</strong> : {{ $img->get_kecamatan->kecamatan }}</p>
+            <div class="ml-4 mt-2 desc"><strong>Tanggal Pantau</strong> : {{ date('d M Y', strtotime($img->tanggal_pantau)) }}</div>
+            <div class="ml-4 mt-2 desc"><strong>Lokasi Pantau</strong> : {{ $img->lokasi_pantau }}</div>
+            <div class="ml-4 mt-2 desc"><strong>Desa</strong> : {{ $img->get_desa->nama_kelurahan }}</div>
+            <div class="ml-4 mt-2 desc"><strong>Kecamatan</strong> : {{ $img->get_kecamatan->kecamatan }}</div>
         </div>
     </div>
     @endforeach
     @else 
-    <h5 class="mt-4">Tidak ada dokumentasi</h5>
+        <h5 class="mt-4">Tidak ada dokumentasi</h5>
     @endif
 </div>
 @endsection
@@ -144,7 +223,7 @@ div.desc {
     $(document).ready(function(){
         $('body').on('change', '.dokumen', function(){
             var data = $(this).val()
-            window.location.href = '{{ route("dokumentasi") }}' + "?dokumentasi=" + data ;
+            window.location.href = '{{ route("dokumentasi") }}' + "?dokumentasi=" + data + "&kecamatan={{ request()->kecamatan }}&periode_kasus={{ request()->periode_kasus}}&latitude={{ request()->latitude}}&longitude={{ request()->longitude }}";
         })
         $("#datepicker").datepicker({ 
             format: 'yyyy-mm-dd'

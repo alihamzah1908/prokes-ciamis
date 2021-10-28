@@ -49,7 +49,15 @@
     .text-card-color {
         color: #b300b3 !important;
     }
+    #pie {
+	    height: 500px;
+    }
+    .highcharts-figure, .highcharts-data-table table {
+        max-width: 1000px;
+        margin: 1em auto;
+    }
 </style>
+<link rel="stylesheet" href="{{ asset('assets/css/loading.css') }}" />
 <div class="row ml-3 mr-3 mt-4">
     <div class="col-lg-6" style="margin-top: 25px;">
         <?php
@@ -131,11 +139,7 @@
                         <span class="text-card-color">PAKAI MASKER</span>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
                         @php
-                        if(request()->periode_kasus){
-                            $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
-                        }else{
-                            $arr = App\Models\Prokes::where('kode_kecamatan', request()->kecamatan)->get();
-                        }
+                        $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
                         @endphp
                         {{ $arr->sum('pakai_masker') }}
                         </div>
@@ -144,11 +148,7 @@
                         <span class="text-card-color">JAGA JARAK</span>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
                         @php
-                        if(request()->periode_kasus){
-                            $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
-                        }else{
-                            $arr = App\Models\Prokes::where('kode_kecamatan', request()->kecamatan)->get();
-                        }
+                        $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
                         $arr->sum('jaga_jarak');
                         @endphp
                         {{ $arr->sum('jaga_jarak') }}
@@ -176,11 +176,7 @@
                         <span class="text-card-color">PAKAI MASKER</span>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
                         @php
-                        if(request()->periode_kasus){
-                            $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
-                        }else{
-                            $arr = App\Models\Prokes::where('kode_kecamatan', request()->kecamatan)->get();
-                        }
+                        $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
                         $jumlah = $arr->sum('pakai_masker') + $arr->sum('tidak_pakai_masker');
                         @endphp
                         @php
@@ -197,11 +193,7 @@
                         <span class="text-card-color">JAGA JARAK</span>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
                         @php
-                        if(request()->periode_kasus){
-                            $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
-                        }else{
-                            $arr = App\Models\Prokes::where('kode_kecamatan', request()->kecamatan)->get();
-                        }
+                        $arr = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
                         $jumlah = $arr->sum('jaga_jarak') + $arr->sum('tidak_jaga_jarak');
                         @endphp
                         @php
@@ -236,11 +228,7 @@
                         <span class="text-card-color">MASKER & JAGA JARAK</span>
                         <div class="h3 mb-0 font-weight-bold text-gray-800 total-upload text-card-color">
                         @php 
-                        if(request()->periode_kasus){
-                            $kepatuhan_prokes = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
-                        }else{
-                            $kepatuhan_prokes = App\Models\Prokes::where('kode_kecamatan', request()->kecamatan)->get();
-                        }
+                        $kepatuhan_prokes = App\Models\Prokes::where('tanggal_pantau', $tanggal_pantau)->where('kode_kecamatan', request()->kecamatan)->get();
                         $total_masker = $kepatuhan_prokes->pluck('pakai_masker')->sum() + $kepatuhan_prokes->pluck('tidak_pakai_masker')->sum();
                         $total_jarak = $kepatuhan_prokes->pluck('jaga_jarak')->sum() + $kepatuhan_prokes->pluck('tidak_jaga_jarak')->sum();
                         $kepatuhan_masker = ($kepatuhan_prokes->pluck('pakai_masker')->sum() != 0) ? ($kepatuhan_prokes->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0;
@@ -255,10 +243,18 @@
         </div>
     </div>
 </div>
-<div class="row ml-3 mr-3 mt-4" style='border-top: 3px solid #b300b3;'>
-    <div class="col-lg-6" style="margin-top: 25px;">
-        <h5><strong>Peta Kepatuhan Prokes Individu COVID-19 Di Kecamatan {{ $kecamatan->kecamatan }}</strong></h5>
-        <h5>Update Terakhir Data : {{ date('d M Y', strtotime($tanggal_pantau)) }}</h5>
+<div class="row ml-3 mt-4" style='border-top: 3px solid #b300b3;'>
+    <div class="col-lg-6" style="margin-top: 40px;">
+        <div class="row mt-1">
+            <h5><strong>Peta Kepatuhan Prokes Individu COVID-19 Di Kecamatan {{ $kecamatan->kecamatan }}</strong></h5>
+            <h5>Update Terakhir Data : {{ date('d M Y', strtotime($tanggal_pantau)) }}</h5>
+        </div>
+        <div class="row" style="margin-top: 20px">
+            <div class="fountainX"></div>
+            <figure class="highcharts-figure">
+                <div id="pie"></div>
+            </figure>
+        </div>
     </div>
     <div class="col-lg-6" style="margin-top: 25px;">
         <div class="row">
@@ -292,7 +288,7 @@
         </div>
         <div class="row">
             <div class="col-md-12 pilih-kecamatan mt-3">
-                <div id="loading"></div>
+                <div class="fountainX"></div>
                 <div id="map-prokes-desa">
             </div>
         </div>
@@ -308,6 +304,7 @@
                     <th>DESA</th>
                     <th>Kepatuhan Masker</th>
                     <th>Kepatuhan Jaga Jarak</th>
+                    <th>Kepatuhan Individu</th>
                 </tr>
             </thead>
             <tbody>
@@ -342,7 +339,8 @@
         <!-- <figure class="highcharts-figure">
             <div id="container"></div>
         </figure> -->
-        <h4>Peta Kepatuhan Prokes</h4>
+        <h4>Grafik Kepatuhan Prokes</h4>
+        <div class="fountainX"></div>
         <div id="lokasipantau" class="mt-4"></div>
     </div>
 </div>
@@ -470,10 +468,18 @@
             periode_kasus: "{{ request()->periode_kasus }}"
         },
         beforeSend: function(){
-            $("#loading").html('Loading ...')
+            var loading = '<div id="fountainG_1" class="fountainG"></div>';
+            loading += '<div id="fountainG_1" class="fountainG"></div>';
+            loading += '<div id="fountainG_2" class="fountainG"></div>';
+            loading += '<div id="fountainG_3" class="fountainG"></div>';
+            loading += '<div id="fountainG_4" class="fountainG"></div>';
+            loading += '<div id="fountainG_5" class="fountainG"></div>';
+            loading += '<div id="fountainG_6" class="fountainG"></div>';
+            loading += '<div id="fountainG_7" class="fountainG"></div>';
+            $('.fountainX').html(loading)
         }
     }).done(function(states) {
-        $("#loading").html(' ')
+        $('.fountainX').html(' ')
         // console.log(states.features)
         var kecamatan = [];
         var jumlah_penduduk = [];
@@ -594,8 +600,20 @@
                 sebaran_kasus: kasus,
                 code: "{{ request()->kecamatan }}",
                 periode_kasus: "{{ request()->periode_kasus }}"
+            },
+            beforeSend: function(){
+                var loading = '<div id="fountainG_1" class="fountainG"></div>';
+                loading += '<div id="fountainG_1" class="fountainG"></div>';
+                loading += '<div id="fountainG_2" class="fountainG"></div>';
+                loading += '<div id="fountainG_3" class="fountainG"></div>';
+                loading += '<div id="fountainG_4" class="fountainG"></div>';
+                loading += '<div id="fountainG_5" class="fountainG"></div>';
+                loading += '<div id="fountainG_6" class="fountainG"></div>';
+                loading += '<div id="fountainG_7" class="fountainG"></div>';
+                $('.fountainX').html(loading)
             }
         }).done(function(states){
+            $('.fountainX').html(' ')
             // console.log(states.features)
             var kecamatan = [];
             var jumlah_penduduk = [];
@@ -748,5 +766,68 @@ $.ajax({
         }]
     });
 })
+</script>
+<script type="text/javascript">
+    var url = "{{ route('sebaran.prokes_individu_desa') }}";
+    $.ajax({
+        data: 'json',
+        method: 'get',
+        url: url,
+        data: {
+            code: "{{ request()->kecamatan }}",
+            periode_kasus: "{{ request()->periode_kasus }}"
+        },
+        beforeSend: function(){
+            var loading = '<div id="fountainG_1" class="fountainG"></div>';
+            loading += '<div id="fountainG_1" class="fountainG"></div>';
+            loading += '<div id="fountainG_2" class="fountainG"></div>';
+            loading += '<div id="fountainG_3" class="fountainG"></div>';
+            loading += '<div id="fountainG_4" class="fountainG"></div>';
+            loading += '<div id="fountainG_5" class="fountainG"></div>';
+            loading += '<div id="fountainG_6" class="fountainG"></div>';
+            loading += '<div id="fountainG_7" class="fountainG"></div>';
+            $('.fountainX').html(loading)
+        }
+    }).done(function(states) {
+        const properties = []
+        $.each(states.features, function(index, value){
+            properties.push(value.properties)
+        })
+        var kecamatan = properties
+        Highcharts.chart('pie', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Kepatuhan Prokes Individu'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y} %</b>'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} %'
+                    }
+                }
+            },
+            series: [{
+                name: 'Level ',
+                colorByPoint: true,
+                data: kecamatan
+            }]
+        });
+    })
 </script>
 @endpush

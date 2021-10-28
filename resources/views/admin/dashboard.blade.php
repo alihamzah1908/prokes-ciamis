@@ -1,4 +1,4 @@
-@extends('master')
+@extends('newmaster')
 @section('content')
   <!-- Toggle button -->
 <h4 class="card-title">Welcome</h4>

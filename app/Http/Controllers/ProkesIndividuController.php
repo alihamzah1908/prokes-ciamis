@@ -166,6 +166,12 @@ class ProkesIndividuController extends Controller
         return response()->json($desa);
     }
 
+    public function get_image_individu(Request $request)
+    {
+        $doc = \App\Models\DokumenIndividu::where('individu_id', $request["individu_id"])->get();
+        return response()->json($doc);
+    }
+
     public function dokumen(Request $request)
     {
         return view('admin.prokes_individu.dokumen');
@@ -239,6 +245,9 @@ class ProkesIndividuController extends Controller
             $arrx["properties"] = [
                 "name" => $val->kecamatan,
                 "density" => round($total),
+                // total untuk pie grafik
+                "y" => round($total),
+                //
                 "total_kasus" => 0,
                 // "total_vaksin_2" => $peserta[0]->total_vaksin_2,
                 // "kasus" => ucfirst($request["sebaran_kasus"]),
@@ -313,6 +322,9 @@ class ProkesIndividuController extends Controller
             $arrx["properties"] = [
                 "name" => $val->nama_kelurahan,
                 "density" => round($total),
+                
+                //untuk grafik pie
+                "y" => round($total),
                 "total_kasus" => 0,
                 // "total_vaksin_2" => $peserta[0]->total_vaksin_2,
                 // "kasus" => ucfirst($request["sebaran_kasus"]),
@@ -358,36 +370,36 @@ class ProkesIndividuController extends Controller
         $sebud = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$sebud}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $sebud->pluck('pakai_masker')->sum() + $sebud->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $sebud->pluck('jaga_jarak')->sum() + $sebud->pluck('tidak_jaga_jarak')->sum();
-        $data["kepatuhan_masker_sebud"] =  round(($sebud->pluck('pakai_masker')->sum() != 0) ? ($sebud->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_sebud"] =  round(($sebud->pluck('jaga_jarak')->sum() != 0) ? ($sebud->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_masker_sebud"] = round(($sebud->pluck('pakai_masker')->sum() != 0) ? ($sebud->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_sebud"] = round(($sebud->pluck('jaga_jarak')->sum() != 0) ? ($sebud->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_sebud"] = round(($data["kepatuhan_masker_sebud"] + $data["kepatuhan_jaga_jarak_sebud"]) / 2, 2);
 
         $belanja = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$belanja}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $belanja->pluck('pakai_masker')->sum() + $belanja->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $belanja->pluck('jaga_jarak')->sum() + $belanja->pluck('tidak_jaga_jarak')->sum();
-        $data["kepatuhan_masker_belanja"] =  round(($belanja->pluck('pakai_masker')->sum() != 0) ? ($belanja->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_belanja"] =  round(($belanja->pluck('jaga_jarak')->sum() != 0) ? ($belanja->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_masker_belanja"] = round(($belanja->pluck('pakai_masker')->sum() != 0) ? ($belanja->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_belanja"] = round(($belanja->pluck('jaga_jarak')->sum() != 0) ? ($belanja->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_belanja"] = round(($data["kepatuhan_masker_belanja"] + $data["kepatuhan_jaga_jarak_belanja"]) / 2, 2);
-        
+
         $publik = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$publik}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $publik->pluck('pakai_masker')->sum() + $publik->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $publik->pluck('jaga_jarak')->sum() + $publik->pluck('tidak_jaga_jarak')->sum();
         $data["kepatuhan_masker_publik"] = round(($publik->pluck('pakai_masker')->sum() != 0) ? ($publik->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_publik"] =  round(($publik->pluck('jaga_jarak')->sum() != 0) ? ($publik->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_publik"] = round(($publik->pluck('jaga_jarak')->sum() != 0) ? ($publik->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_publik"] = round(($data["kepatuhan_masker_publik"] + $data["kepatuhan_masker_publik"]) / 2, 2);
 
         $resto = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$resto}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $resto->pluck('pakai_masker')->sum() + $resto->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $resto->pluck('jaga_jarak')->sum() + $resto->pluck('tidak_jaga_jarak')->sum();
-        $data["kepatuhan_masker_resto"] =  round(($resto->pluck('pakai_masker')->sum() != 0) ? ($resto->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_resto"] =  round(($resto->pluck('jaga_jarak')->sum() != 0) ? ($resto->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_masker_resto"] = round(($resto->pluck('pakai_masker')->sum() != 0) ? ($resto->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_resto"] = round(($resto->pluck('jaga_jarak')->sum() != 0) ? ($resto->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_resto"] = round(($data["kepatuhan_masker_resto"] + $data["kepatuhan_jaga_jarak_resto"]) / 2, 2);
 
         $transport = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$transport}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $transport->pluck('pakai_masker')->sum() + $transport->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $transport->pluck('jaga_jarak')->sum() + $transport->pluck('tidak_jaga_jarak')->sum();
-        $data["kepatuhan_masker_transport"] =  round(($transport->pluck('pakai_masker')->sum() != 0) ? ($transport->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_transport"] =  round(($transport->pluck('jaga_jarak')->sum() != 0) ? ($transport->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_masker_transport"] = round(($transport->pluck('pakai_masker')->sum() != 0) ? ($transport->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_transport"] = round(($transport->pluck('jaga_jarak')->sum() != 0) ? ($transport->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_transport"] = round(($data["kepatuhan_masker_transport"] + $data["kepatuhan_jaga_jarak_transport"]) / 2, 2);
 
         $wisata = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$wisata}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
@@ -396,12 +408,12 @@ class ProkesIndividuController extends Controller
         $data["kepatuhan_masker_wisata"] = round(($wisata->pluck('pakai_masker')->sum() != 0) ? ($wisata->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
         $data["kepatuhan_jaga_jarak_wisata"] = round(($wisata->pluck('jaga_jarak')->sum() != 0) ? ($wisata->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_wisata"] = round(($data["kepatuhan_masker_wisata"] + $data["kepatuhan_jaga_jarak_wisata"]) / 2, 2);
-        
+
         $ibadah = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$ibadah}%")->where('tanggal_pantau', $request["tanggal_pantau"])->get();
         $total_masker = $ibadah->pluck('pakai_masker')->sum() + $ibadah->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $ibadah->pluck('jaga_jarak')->sum() + $ibadah->pluck('tidak_jaga_jarak')->sum();
-        $data["kepatuhan_masker_ibadah"] =  round(($ibadah->pluck('pakai_masker')->sum() != 0) ? round($ibadah->pluck('pakai_masker')->sum() / $total_masker)* 100 : 0, 2);
-        $data["kepatuhan_jaga_jarak_ibadah"] =  round(($ibadah->pluck('jaga_jarak')->sum() != 0) ? ($ibadah->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
+        $data["kepatuhan_masker_ibadah"] = round(($ibadah->pluck('pakai_masker')->sum() != 0) ? round($ibadah->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
+        $data["kepatuhan_jaga_jarak_ibadah"] = round(($ibadah->pluck('jaga_jarak')->sum() != 0) ? ($ibadah->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_ibadah"] = round(($data["kepatuhan_masker_ibadah"] + $data["kepatuhan_jaga_jarak_ibadah"]) / 2, 2);
         return response()->json($data);
     }
@@ -424,7 +436,7 @@ class ProkesIndividuController extends Controller
         $data["kepatuhan_masker_hotel"] = round(($hotel->pluck('pakai_masker')->sum() != 0) ? ($hotel->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
         $data["kepatuhan_jaga_jarak_hotel"] = round(($hotel->pluck('jaga_jarak')->sum() != 0) ? ($hotel->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_hotel"] = round(($data["kepatuhan_masker_hotel"] + $data["kepatuhan_jaga_jarak_hotel"]) / 2, 2);
-        
+
         //Kepatuhan seni budaya
         $sebud = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$sebud}%")->where('tanggal_pantau', $request["tanggal_pantau"])->where('kode_kecamatan', $request["kode_kecamatan"])->get();
         $total_masker = $sebud->pluck('pakai_masker')->sum() + $sebud->pluck('tidak_pakai_masker')->sum();
@@ -467,17 +479,63 @@ class ProkesIndividuController extends Controller
         $data["kepatuhan_masker_wisata"] = round(($wisata->pluck('pakai_masker')->sum() != 0) ? ($wisata->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
         $data["kepatuhan_jaga_jarak_wisata"] = round(($wisata->pluck('jaga_jarak')->sum() != 0) ? ($wisata->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_wisata"] = round(($data["kepatuhan_masker_wisata"] + $data["kepatuhan_jaga_jarak_wisata"]) / 2, 2);
-        
+
         $ibadah = \App\Models\Prokes::where('kode_lokasi_pantau', 'LIKE', "%{$ibadah}%")->where('tanggal_pantau', $request["tanggal_pantau"])->where('kode_kecamatan', $request["kode_kecamatan"])->get();
         $total_masker = $ibadah->pluck('pakai_masker')->sum() + $ibadah->pluck('tidak_pakai_masker')->sum();
         $total_jarak = $ibadah->pluck('jaga_jarak')->sum() + $ibadah->pluck('tidak_jaga_jarak')->sum();
         $data["kepatuhan_masker_ibadah"] = round(($ibadah->pluck('pakai_masker')->sum() != 0) ? ($ibadah->pluck('pakai_masker')->sum() / $total_masker) * 100 : 0, 2);
         $data["kepatuhan_jaga_jarak_ibadah"] = round(($ibadah->pluck('jaga_jarak')->sum() != 0) ? ($ibadah->pluck('jaga_jarak')->sum() / $total_jarak) * 100 : 0, 2);
         $data["kepatuhan_ibadah"] = round(($data["kepatuhan_masker_ibadah"] + $data["kepatuhan_jaga_jarak_ibadah"]) / 2, 2);
-        
+
         return response()->json($data);
     }
 
+    public function get_prokes_individu(Request $request)
+    {
+        $data = \App\Models\Prokes::all();
+        $arr = [];
+        foreach($data as $val){
+            $arrx = [
+                "id" => $val->id,
+                "nama_user" => $val->get_user->name,
+                "desa" => $val->get_desa->nama_kelurahan,
+                "kecamatan" => $val->get_kecamatan->kecamatan,
+                "lokasi_pantau" => $val->kode_lokasi_pantau,
+                "tanggal_pantau" => $val->tanggal_pantau,
+                "jam_pantau" => $val->jam_pantau,
+                "selesai_jam_pantau" => $val->selesai_jam_pantau,
+                "jaga_jarak" => $val->jaga_jarak,
+                "tidak_jaga_jarak" => $val->tidak_jaga_jarak,
+                "pakai_masker" => $val->pakai_masker,
+                "tidak_pakai_masker" => $val->tidak_pakai_masker,
+            ];
+            $arr[] = $arrx;
+        }
+        return response()->json($arr);
+    }
+
+    public function get_prokes_individu_raw(Request $request)
+    {
+        $data = \App\Models\Prokes::all();
+        $arr = [];
+        foreach($data as $val){
+            $arrx = [
+                "kecamatan" => $val->kode_kecamatan,
+                "desa" => $val->kode_desa,
+                "lokasi_pantau" => $val->kode_lokasi_pantau,
+                "tanggal_pantau" => $val->tanggal_pantau,
+                "jam_pantau" => $val->jam_pantau,
+                "jam_selesai_pantau" => $val->selesai_jam_pantau,
+                "jumlah_jaga_jarak" => $val->jaga_jarak,
+                "tidak_jaga_jarak" => $val->tidak_jaga_jarak,
+                "jumlah_pakai_masker" => $val->pakai_masker,
+                "tidak_pakai_masker" => $val->tidak_pakai_masker,
+            ];
+            $arr[] = $arrx;
+        }
+        return response()->json($arr);
+    }
+    
     public function download_template(Request $request)
     {
         return Excel::download(new ExportsDataProkesIndividu($request["kode"]), 'template.xlsx');
@@ -509,6 +567,7 @@ class ProkesIndividuController extends Controller
                     WHEN jaga_jarak/(jaga_jarak+tidak_jaga_jarak)*100 <= 100 THEN 4
                 END) as level_jaga_jarak'))
                 ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
+                ->orderBy('id','desc')
                 ->get();
         } else if (Auth::user()->role == 'Staff') {
             $data = \App\Models\Prokes::select('*',
@@ -523,15 +582,14 @@ class ProkesIndividuController extends Controller
                 WHEN jaga_jarak/(jaga_jarak+tidak_jaga_jarak)*100 < 91 THEN 3
                 WHEN jaga_jarak/(jaga_jarak+tidak_jaga_jarak)*100 <= 100 THEN 4
             END) as level_jaga_jarak'))
-                ->where('created_by', Auth::user()->id)
-                ->get();
+                ->latest();
         } else {
             $data = \App\Models\Prokes::all();
         }
         return Datatables::of($data)
             ->addColumn('nama_user', function ($val) {
                 $user = $val->get_user ? $val->get_user->name : '';
-                return "<a href=" . route('individu.dokumen') . '?individu_id=' . $val->id .">" . $user . "</a>";
+                return "<a href=" . route('individu.dokumen') . '?individu_id=' . $val->id . ">" . $user . "</a>";
             })
             ->addColumn('kelurahan', function ($val) {
                 return $val->get_desa ? $val->get_desa->nama_kelurahan : '';
@@ -589,13 +647,13 @@ class ProkesIndividuController extends Controller
                 return '<div class="dropdown">
                             <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Aksi</button>
                             <div class="dropdown-menu" role="menu">
-                                <a class="dropdown-item" role="presentation" href=' . route('individu.dokumen') . '?individu_id=' . $val->id .'>Tambah Dokumen</a>
+                                <a class="dropdown-item" role="presentation" href=' . route('individu.dokumen') . '?individu_id=' . $val->id . '>Tambah Dokumen</a>
                                 <a class="dropdown-item edit" data-bind=\'' . $val . '\' role="presentation" href="javascript:void(0)" data-toggle="modal">Edit</a>
                                 <a class="dropdown-item delete" data-bind="' . $val->id . '" role="presentation" href="javascript:void(0)">Hapus</a>
                             </div>
                         </div>';
             })
-            ->rawColumns(['aksi','nama_user'])
+            ->rawColumns(['aksi', 'nama_user'])
             ->make(true);
     }
 }

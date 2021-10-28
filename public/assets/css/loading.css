@@ -22,7 +22,8 @@
 .fountainG {
     position: absolute;
     top: 0;
-    background-color: rgb(40, 167, 69);
+    /* background-color: rgb(40, 167, 69); */
+    background-color: rgb(238, 130, 238);
     width: 28px;
     height: 28px;
     animation-name: bounce_fountainG;
@@ -132,54 +133,63 @@
 @keyframes bounce_fountainG {
     0% {
         transform: scale(1);
-        background-color: rgba(40, 167, 69, 0.98);
+        /* background-color: rgba(40, 167, 69, 0.98); */
+        background-color: rgb(238, 130, 238);
     }
     100% {
         transform: scale(.3);
-        background-color: rgb(40, 167, 69);
+        /* background-color: rgb(40, 167, 69); */
     }
 }
 
 @-o-keyframes bounce_fountainG {
     0% {
         -o-transform: scale(1);
-        background-color: rgba(40, 167, 69, 0.98);
+        /* background-color: rgba(40, 167, 69, 0.98); */
+        background-color: rgb(238, 130, 238);
     }
     100% {
         -o-transform: scale(.3);
-        background-color: rgb(40, 167, 69);
+        /* background-color: rgb(40, 167, 69); */
+        background-color: rgb(238, 130, 238);
     }
 }
 
 @-ms-keyframes bounce_fountainG {
     0% {
         -ms-transform: scale(1);
-        background-color: rgba(40, 167, 69, 0.98);
+        background-color: rgb(238, 130, 238);
+        /* background-color: rgba(40, 167, 69, 0.98); */
     }
     100% {
         -ms-transform: scale(.3);
-        background-color: rgb(40, 167, 69);
+        background-color: rgb(238, 130, 238);
+        /* background-color: rgb(40, 167, 69); */
     }
 }
 
 @-webkit-keyframes bounce_fountainG {
     0% {
         -webkit-transform: scale(1);
-        background-color: rgba(40, 167, 69, 0.98);
+        /* background-color: rgba(40, 167, 69, 0.98); */
+        background-color: rgb(238, 130, 238);
     }
     100% {
         -webkit-transform: scale(.3);
-        background-color: rgb(40, 167, 69);
+        /* background-color: rgb(40, 167, 69); */
+        background-color: rgb(238, 130, 238);
     }
 }
 
 @-moz-keyframes bounce_fountainG {
     0% {
         -moz-transform: scale(1);
-        background-color: rgba(40, 167, 69, 0.98);
+        /* background-color: rgba(40, 167, 69, 0.98); */
+        background-color: rgb(238, 130, 238);
     }
     100% {
         -moz-transform: scale(.3);
-        background-color: rgb(40, 167, 69);
+        /* background-color: rgb(40, 167, 69); */
+        background-color: rgb(238, 130, 238);
     }
 }

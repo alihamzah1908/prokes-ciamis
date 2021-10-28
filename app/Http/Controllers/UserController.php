@@ -126,13 +126,21 @@ class UserController extends Controller
             }
             return Datatables::of($data)
                 ->addColumn('aksi', function ($val) {
-                    if(Auth::user()->role == 'super admin' || Auth::user()->role == 'Admin'){
-                    return '<div class="dropdown">
+                    if (Auth::user()->role == 'super admin') {
+                        return '<div class="dropdown">
                                     <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Aksi</button>
                                     <div class="dropdown-menu" role="menu">
                                         <a class="dropdown-item add-staff" data-bind="' . $val->id . '" href="javascript:void(0)">Tambah Staff</a>
                                         <a class="dropdown-item edit" data-bind=\'' . $val . '\' role="presentation" href="javascript:void(0)" data-toggle="modal">Edit</a>
                                         <a class="dropdown-item delete" data-bind="' . $val->id . '" role="presentation" href="javascript:void(0)">Hapus</a>
+                                    </div>
+                                </div>';
+                    }
+                    if (Auth::user()->role == 'Admin') {
+                        return '<div class="dropdown">
+                                    <button class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false" type="button">Aksi</button>
+                                    <div class="dropdown-menu" role="menu">
+                                        <a class="dropdown-item add-staff" data-bind="' . $val->id . '" href="javascript:void(0)">Tambah Staff</a>
                                     </div>
                                 </div>';
                     }

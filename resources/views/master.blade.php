@@ -54,7 +54,7 @@
 
   <ul class="nav flex-column bg-white mb-0">
     <li class="nav-item">
-      <a href="{{ URL::to('/admin') }}" class="nav-link text-dark font-italic">
+        <a href="{{ URL::to('/admin') }}" class="nav-link text-dark font-italic">
             <i class="fa fa-tachometer" aria-hidden="true"></i>
             Home
         </a>
