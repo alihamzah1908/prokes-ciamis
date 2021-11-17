@@ -166,7 +166,7 @@ if(Auth::user()->role == 'Staff'){
         </div>
         <div class="row mb-3">
             <div class="col-md-6">
-                <button type="submit" class="btn btn-success">Simpan</button>
+                <button type="submit" class="btn btn-success btn-sm">Simpan</button>
                 <input type="hidden" name="individu_id" value="{{ request()->individu_id }}" />
             </div>
         </div>

@@ -31,7 +31,7 @@
 </table>
 </div>
   <!-- Demo content -->
-  <div class="modal fade add" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade addsa" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <form method="POST" action="{{ route('user.store') }}" enctype="multipart/form-data" id="import_participan">
         @csrf
         <div class="modal-dialog modal-lg" role="document">
@@ -87,8 +87,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Simpan</button>
+                    <button type="button" class="btn btn-secondary modal-close btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success btn-sm">Simpan</button>
                 </div>
                 <input type="hidden" name="id" id="id" value=""/>
                 <input type="hidden" name="id_user" id="id_user" value=""/>
@@ -133,16 +133,34 @@
     $(document).ready(function(){
   // Sidebar toggle behavior
         $('body').on('click','.modal-close', function(){
-            location.reload()
+            $("#id").val(' ')
+            $("#nama").val(' ')
+            $("#kode_pasyankes").val(' ')
+            $("#user_sebagai").val(' ')
+            $("#email").val(' ')
+            $("#password").val(' ')
+            $("#id_user").val(' ')
+            $('.modal').modal('hide')
         })
         $('body').on('click','.close', function(){
-            location.reload()
+            $("#id").val(' ')
+            $("#nama").val(' ')
+            $("#kode_pasyankes").val(' ')
+            $("#user_sebagai").val(' ')
+            $("#email").val('')
+            $("#password").val(' ')
+            $("#id_user").val(' ')
+            $('.modal').modal('hide')
         })
         $('#sidebarCollapse').on('click', function() {
             $('#sidebar, #content').toggleClass('active');
         });
 
         $('body').on('click','.add', function(){
+            $(".modal-title").html('Add data user')
+            $("#email-password").show()
+            $("#email").prop('disabled', false)
+            $("#password").prop('disabled', false)
             $('.modal').modal('show')
         })
 
@@ -167,7 +185,7 @@
         $('body').on('click','.edit', function(){
             var data = JSON.parse($(this).attr("data-bind"));
             console.log(data)
-            $(".modal-title").html('Edit data user/pasyankes')
+            $(".modal-title").html('Edit data user')
             $("#id").val(data.id)
             $("#nama").val(data.name)
             $("#kode_pasyankes").val(data.kode_pasyankes)
@@ -181,6 +199,7 @@
 
         $('body').on('click','.add-staff', function(){
             var id_user = $(this).attr("data-bind");
+            $(".modal-title").html('Tambah staff')
             $("#id_user").val(id_user)
             $("#user_sebagai").val("Staff")
             $('.modal').modal('show')

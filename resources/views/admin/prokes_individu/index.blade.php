@@ -87,161 +87,151 @@
                 </div>
                 <div class="modal-body">
                     <p>Mohon Input Data Prokes</p>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Alamat</strong></label>
-                        </div>
+                    <div class="row">
                         <div class="col-md-6" id="kecamatan">
-                            @if(Auth::user()->role == 'Admin')
-                            <input type="hidden" name="kecamatan_id" value="{{ Auth::user()->kode_kecamatan }}" />
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled required>
-                                <option value="">Pilih Kecamatan</option>
-                                @php
-                                $kecamatan = \App\Models\Kecamatan::all()
-                                @endphp
-                                @foreach($kecamatan as $val)
-                                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                                @endforeach
-                            </select>
-                            @elseif(Auth::user()->role == 'super admin')
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" required>
-                                <option value="">Pilih Kecamatan</option>
-                                @php
-                                $kecamatan = \App\Models\Kecamatan::all()
-                                @endphp
-                                @foreach($kecamatan as $val)
-                                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                                @endforeach
-                            </select>
-                            @else
-                            <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}" />
-                            <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled required>
-                                <option value="">Pilih Kecamatan</option>
-                                @php
-                                $kecamatan = \App\Models\Kecamatan::all()
-                                @endphp
-                                @foreach($kecamatan as $val)
-                                    <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
-                                @endforeach
-                            </select>
-                            @endif
+                            <label><strong>Alamat</strong></label>
+                            <div class="form-group">
+                                @if(Auth::user()->role == 'Admin')
+                                <input type="hidden" name="kecamatan_id" value="{{ Auth::user()->kode_kecamatan }}" />
+                                <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled required>
+                                    <option value="">Pilih Kecamatan</option>
+                                    @php
+                                    $kecamatan = \App\Models\Kecamatan::all()
+                                    @endphp
+                                    @foreach($kecamatan as $val)
+                                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                                    @endforeach
+                                </select>
+                                @elseif(Auth::user()->role == 'super admin')
+                                <select name="kecamatan_id" id="kecamatan_id" class="form-control" required>
+                                    <option value="">Pilih Kecamatan</option>
+                                    @php
+                                    $kecamatan = \App\Models\Kecamatan::all()
+                                    @endphp
+                                    @foreach($kecamatan as $val)
+                                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == Auth::user()->kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                                    @endforeach
+                                </select>
+                                @else
+                                <input type="hidden" name="kecamatan_id" value="{{ $kode_kecamatan }}" />
+                                <select name="kecamatan_id" id="kecamatan_id" class="form-control" disabled required>
+                                    <option value="">Pilih Kecamatan</option>
+                                    @php
+                                    $kecamatan = \App\Models\Kecamatan::all()
+                                    @endphp
+                                    @foreach($kecamatan as $val)
+                                        <option value="{{ $val->code_kecamatan }}"{{ $val->code_kecamatan == $kode_kecamatan ? ' selected' : ''}}> {{ $val->kecamatan }}</option>
+                                    @endforeach
+                                </select>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label><strong>Jumlah Pakai Masker</strong></label>
+                            <div class="form-group">
+                                <input type="number" name="jumlah_pakai_masker" id="jumlah_pakai_masker" class="form-control" required placeholder="mohon isi dengan angka">
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-3" id="desa" style='display:none;'>
-                        <div class="col-md-2">
+                    <div class="row" id="desa" style='display:none;'>
+                        <div class="col-md-6">
                             <label><strong>Pilih Desa</strong></label>
+                            <div class="form-group" id="kecamatan">
+                                <select name="desa_id" id="desa_id" class="form-control">
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6" id="kecamatan">
-                            <select name="desa_id" id="desa_id" class="form-control">
-                            </select>
+                        <div class="col-md-6">
+                            <label><strong>Jumlah Tidak Pakai masker</strong></label>
+                            <div class="form-group">
+                                <input type="number" name="jumlah_tidak_pakai" id="jumlah_tidak_pakai" class="form-control" required placeholder="mohon isi dengan angka">
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3" id="desa_edit" style='display:none;'>
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label><strong>Pilih Desa</strong></label>
-                        </div>
-                        <div class="col-md-6" id="kecamatan">
-                            <select name="desa_id" id="desa_id" class="form-control">
-                            </select>
+                            <div class="form-group" id="kecamatan">
+                                <select name="desa_id" id="desa_id" class="form-control">
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-2">
+                        <div class="col-md-6">
                             <label><strong>Lokasi Pantau</strong></label>
+                            <div class="form-group">
+                                <select name="master_lokasi_pantau" class="form-control" id="master_lokasi_pantau" required>
+                                    <option value="">Pilih Lokasi</option>
+                                    <option value="Pusat Perbelanjaan">Pusat Perbelanjaan</option>
+                                    <option value="Obyek Wisata">Obyek Wisata</option>
+                                    <option value="Area Publik">Area Publik</option>
+                                    <option value="Hotel">Hotel</option>
+                                    <option value="Restoran">Restoran</option>
+                                    <option value="Tempat Ibadah">Tempat Ibadah</option>
+                                    <option value="Kegiatan Seni Budaya">Kegiatan Seni Budaya</option>
+                                    <option value="Transportasi Umum">Transportasi Umum</option>
+                                </select>
+                                <textarea name="lokasi_pantau" class="form-control mt-2" id="lokasi_pantau" style="display:none" placeholder="mohon isi kelengkapan lokasi pantau" ></textarea>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <select name="master_lokasi_pantau" class="form-control" id="master_lokasi_pantau" required>
-                                <option value="">Pilih Lokasi</option>
-                                <option value="Pusat Perbelanjaan">Pusat Perbelanjaan</option>
-                                <option value="Obyek Wisata">Obyek Wisata</option>
-                                <option value="Area Publik">Area Publik</option>
-                                <option value="Hotel">Hotel</option>
-                                <option value="Restoran">Restoran</option>
-                                <option value="Tempat Ibadah">Tempat Ibadah</option>
-                                <option value="Kegiatan Seni Budaya">Kegiatan Seni Budaya</option>
-                                <option value="Transportasi Umum">Transportasi Umum</option>
-                            </select>
-                            <textarea name="lokasi_pantau" class="form-control mt-2" id="lokasi_pantau" style="display:none" placeholder="mohon isi kelengkapan lokasi pantau" ></textarea>
-                            <!-- <input type="text" name="lokasi_pantau" class="form-control mt-2" id="lokasi_pantau" style="display:none" placeholder="mohon isi kelengkapan lokasi pantau" /> -->
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Tanggal Pantau</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="text" name="tanggal_pantau" id="tanggal_pantau" class="form-control" placeholder="isi tanggal pantau" required> 
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Mulai Jam Pantau</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type='text' name="jam_pantau" class="form-control" id="jam_pantau" required placeholder="isi mulai jam pantau">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Selesai Jam Pantau</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type='text' name="selesai_jam_pantau" class="form-control" id="selesai_jam_pantau" required placeholder="isi selesai jam pantau">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Jumlah Pakai Masker</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" name="jumlah_pakai_masker" id="jumlah_pakai_masker" class="form-control" required placeholder="mohon isi dengan angka">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Jumlah Tidak Pakai</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" name="jumlah_tidak_pakai" id="jumlah_tidak_pakai" class="form-control" required placeholder="mohon isi dengan angka">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-2">
                             <label><strong>Jumlah Jaga Jarak</strong></label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" name="jumlah_jaga_jarak" id="jumlah_jaga_jarak" class="form-control" required placeholder="mohon isi dengan angka">
+                            <div class="form-group">
+                                <input type="number" name="jumlah_jaga_jarak" id="jumlah_jaga_jarak" class="form-control" required placeholder="mohon isi dengan angka">
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Jumlah Tidak Jaga Jarak</strong></label>
+                        <div class="col-md-6">
+                            <label><strong>Tanggal Pantau</strong></label>
+                            <div class="form-group">
+                                <input type="text" name="tanggal_pantau" id="tanggal_pantau" class="form-control" placeholder="isi tanggal pantau" required> 
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <input type="number" name="jumlah_tidak_jaga_jarak" id="jumlah_tidak_jaga_jarak" class="form-control" required placeholder="mohon isi dengan angka">
+                            <label><strong>Jumlah Tidak Jaga Jarak</strong></label>
+                            <div class="form-group">
+                                <input type="number" name="jumlah_tidak_jaga_jarak" id="jumlah_tidak_jaga_jarak" class="form-control" required placeholder="mohon isi dengan angka">
+                            </div>
                         </div>
                     </div>
-                    <div class="row kolom mb-3">
-                        <div class="col-md-2">
-                            <label><strong>Upload Dokumen (Harap isi dengan file jpg/jpeg/png)</strong></label>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label><strong>Mulai Jam Pantau</strong></label>
+                            <div class="form-group">
+                                <input type='text' name="jam_pantau" class="form-control" id="jam_pantau" required placeholder="isi mulai jam pantau">
+                            </div>
                         </div>
-                        <div class="col-md-6 file_dokumen">
-                            <input type="file" name="image[]" id="image" class="form-control image" required placeholder="isi tanggal pantau">
+                        <div class="col-md-6">
+                            <label><strong>Selesai Jam Pantau</strong></label>
+                            <div class="form-group">
+                                <input type='text' name="selesai_jam_pantau" class="form-control" id="selesai_jam_pantau" required placeholder="isi selesai jam pantau">
+                            </div>
                         </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-6 file_dokumen_new" style="display:none;">
-                            
+                        
                         </div>
                     </div>
-                    
-                    <div class="row mb-3 d-flex justify-content-end">
+                    <div class="row mb-3">
+                        <div class="col-md-6 kolom file_dokumen">
+                            <label><strong>Upload Dokumen (Harap isi dengan file jpg/jpeg/png)</strong></label>
+                            <div class="form-group">
+                                <input type="file" name="image[]" id="image" class="form-control image" required placeholder="isi tanggal pantau">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-6">
                             <button type="button" class="btn btn-sm btn-success mr-2 tambah-kolom"><i class="fa fa-plus" aria-hidden="true"></i> Tambah Dokumen</button>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary modal-close" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Simpan</button>
+                    <button type="button" class="btn btn-secondary modal-close btn-sm" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success btn-sm">Simpan</button>
                 </div>
                 <input type="hidden" name="id" id="id" value=""/>
             </div>
@@ -289,10 +279,8 @@
 $(document).ready(function(){
     var id = 2;
     $('body').on('click','.tambah-kolom', function(){
-        var body = '<div class="row mb-3" >';
-        body += '<div class="col-md-10" style="margin-left: 150px;">';
+        var body = '<div class="form-group" >';
         body += '<input type="file" name="image['+ id +']" class="form-control image_append" placeholder="isi tanggal pantau" required>';
-        body += '</div>';
         body += '</div>';
         $('.kolom').append(body)
         id++;
@@ -503,6 +491,7 @@ $(document).ready(function(){
             { data: "aksi" },
         ],
         "order": [[0, 'desc']],
+        "pageLength" : 25,
     });
 
     $('body').on('change', '#image', function(){

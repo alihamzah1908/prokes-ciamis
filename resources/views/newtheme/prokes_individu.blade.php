@@ -763,7 +763,7 @@
     
 </script>
 <script type="text/javascript">
-    var url = "{{ route('sebaran.prokes_individu') }}";
+    var url = "{{ route('sebaran.prokes_individu_pie') }}";
     $.ajax({
         data: 'json',
         method: 'get',

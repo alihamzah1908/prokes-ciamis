@@ -950,7 +950,7 @@
     })
 </script>
 <script type="text/javascript">
-    var url = "{{ route('sebaran.prokes_institusi') }}";
+    var url = "{{ route('sebaran.prokes_institusi_pie') }}";
     $.ajax({
         data: 'json',
         method: 'get',

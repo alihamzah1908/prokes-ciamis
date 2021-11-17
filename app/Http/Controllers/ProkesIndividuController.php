@@ -322,7 +322,7 @@ class ProkesIndividuController extends Controller
             $arrx["properties"] = [
                 "name" => $val->nama_kelurahan,
                 "density" => round($total),
-                
+
                 //untuk grafik pie
                 "y" => round($total),
                 "total_kasus" => 0,
@@ -494,7 +494,7 @@ class ProkesIndividuController extends Controller
     {
         $data = \App\Models\Prokes::all();
         $arr = [];
-        foreach($data as $val){
+        foreach ($data as $val) {
             $arrx = [
                 "id" => $val->id,
                 "nama_user" => $val->get_user->name,
@@ -518,7 +518,7 @@ class ProkesIndividuController extends Controller
     {
         $data = \App\Models\Prokes::all();
         $arr = [];
-        foreach($data as $val){
+        foreach ($data as $val) {
             $arrx = [
                 "kecamatan" => $val->kode_kecamatan,
                 "desa" => $val->kode_desa,
@@ -535,7 +535,7 @@ class ProkesIndividuController extends Controller
         }
         return response()->json($arr);
     }
-    
+
     public function download_template(Request $request)
     {
         return Excel::download(new ExportsDataProkesIndividu($request["kode"]), 'template.xlsx');
@@ -567,7 +567,7 @@ class ProkesIndividuController extends Controller
                     WHEN jaga_jarak/(jaga_jarak+tidak_jaga_jarak)*100 <= 100 THEN 4
                 END) as level_jaga_jarak'))
                 ->where('kode_kecamatan', Auth::user()->kode_kecamatan)
-                ->orderBy('id','desc')
+                ->orderBy('id', 'desc')
                 ->get();
         } else if (Auth::user()->role == 'Staff') {
             $data = \App\Models\Prokes::select('*',
@@ -655,5 +655,51 @@ class ProkesIndividuController extends Controller
             })
             ->rawColumns(['aksi', 'nama_user'])
             ->make(true);
+    }
+
+    public function get_sebaran_individu_pie(Request $request)
+    {
+        $tanggal_screaning = \App\Models\Prokes::select('tanggal_pantau')
+            ->orderBy('tanggal_pantau', 'desc')->first();
+        $tanggal = $request["periode_kasus"];
+        if ($tanggal != '') {
+            $var = $request["periode_kasus"];
+            $date = str_replace('/', '-', $var);
+            $periode_kasus = date('Y-m-d', strtotime($date));
+        } else {
+            $periode_kasus = $tanggal_screaning->tanggal_pantau;
+        }
+        $kepatuhan_prokes = DB::table('kepatuhan_prokes as a')
+            ->select(['a.id','a.tanggal_pantau', 'a.kode_kecamatan', 'b.kecamatan', 'c.nama_kelurahan', 'a.kode_lokasi_pantau as lokasi_pantau', DB::raw('SUM(a.pakai_masker) as pakai_masker'),
+                DB::raw('SUM(a.tidak_pakai_masker) as tidak_pakai_masker'), DB::raw('SUM(a.jaga_jarak) as jaga_jarak'),
+                DB::raw('SUM(a.tidak_jaga_jarak) as tidak_jaga_jarak'), DB::raw("'Individu' as jenis_kepatuhan"),
+                DB::raw("'0' as fasilitas_cuci_tangan, '0' as sosialisasi_prokes, '0' as cek_suhu_tubuh, '0' as petugas_pengawas_prokes, '0' as desinfeksi_berkala")])
+            ->join('kecamatan as b', 'a.kode_kecamatan', 'b.code_kecamatan')
+            ->join('desa_master as c', 'a.kode_desa', 'c.kode_kelurahan')
+            ->where('a.tanggal_pantau', $periode_kasus)
+            ->groupBy('a.kode_kecamatan')
+            ->get();
+        foreach ($kepatuhan_prokes as $key => $val) {
+            $total_masker = $val->pakai_masker + $val->tidak_pakai_masker;
+            $kapatuhan_masker = ($val->pakai_masker / $total_masker) * 100;
+            $total_jarak = $val->jaga_jarak + $val->tidak_jaga_jarak;
+            $kepatuhan_jaga_jarak = ($val->jaga_jarak / $total_jarak) * 100;
+            $total = ($kapatuhan_masker + $kepatuhan_jaga_jarak) / 2;
+            $arrx["type"] = "Feature";
+            $arrx["id"] = "$val->id";
+            $arrx["properties"] = [
+                "name" => $val->kecamatan,
+                "density" => round($total),
+                // total untuk pie grafik
+                "y" => round($total),
+                //
+                "total_kasus" => 0,
+                // "total_vaksin_2" => $peserta[0]->total_vaksin_2,
+                // "kasus" => ucfirst($request["sebaran_kasus"]),
+            ];
+            $arr[] = $arrx;
+        }
+        $arry["features"] = $arr;
+        return response()->json($arry);
     }
 }

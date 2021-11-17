@@ -19,7 +19,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/prokes_individu','ProkesIndividuController@get_sebaran_individu')->name('sebaran.prokes_individu');
+Route::get('/prokes_individu_pie','ProkesIndividuController@get_sebaran_individu_pie')->name('sebaran.prokes_individu_pie');
 Route::get('/prokes_institusi','ProkesInstitusiController@get_sebaran_institusi')->name('sebaran.prokes_institusi');
+Route::get('/prokes_institusi_pie','ProkesInstitusiController@get_sebaran_institusi_pie')->name('sebaran.prokes_institusi_pie');
 Route::get('/prokes_individu_desa','ProkesIndividuController@get_sebaran_individu_desa')->name('sebaran.prokes_individu_desa');
 Route::get('/prokes_institusi_desa','ProkesInstitusiController@get_sebaran_institusi_desa')->name('sebaran.prokes_institusi_desa');
 Route::get('/get_lokasi_pantau_individu','ProkesIndividuController@get_lokasi_pantau_individu')->name('lokasi.pantau');

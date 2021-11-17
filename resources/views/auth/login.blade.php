@@ -15,10 +15,12 @@
         * General styles
         */
         body, html {
-            height: 100%;
-            background-repeat: no-repeat;
+            /* height: 100%; */
+            max-height: 100%;
+            max-width: 100%;
+            /* background-repeat: no-repeat; */
             /* background-image: linear-gradient(rgb(104, 145, 162), rgb(12, 97, 33)); */
-            background-image: #FFFFFF;
+            background-image: url('https://image.freepik.com/free-vector/crowd-people-wearing-face-masks_52683-39841.jpg');
         }
 
         .card-container.card {
@@ -39,7 +41,8 @@
         * Card component
         */
         .card {
-            background-color: #F7F7F7;
+            /* background-color: #F7F7F7; */
+            background-color: #FFF;
             /* just in case there no content*/
             padding: 20px 25px 30px;
             margin: 0 auto 25px;
@@ -47,7 +50,8 @@
             /* shadows and rounded borders */
             -moz-border-radius: 2px;
             -webkit-border-radius: 2px;
-            border-radius: 2px;
+            /* border-radius: 2px; */
+            border-radius: 15px;
             -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
             -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
             box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
@@ -167,8 +171,8 @@
             <h5 class="ml-2 p-1">Aplikasi Protokol Kesehatan</h5>
             <label class="ml-2">Harap Masukan Email dan Password</label>
             <h4 id="reauth-email" class="reauth-email"></h4>
-            <input type="email" id="inputEmail" class="form-control" name="email" placeholder="Alamat Email" required autofocus>
-            <input type="password" name="password" id="inputPassword" class="form-control" password="password" placeholder="Password" required>
+            <input type="email" id="inputEmail" class="form-control" name="email" placeholder="email" required autofocus>
+            <input type="password" name="password" id="inputPassword" class="form-control" password="password" placeholder="password" required>
             <div id="remember" class="checkbox">
                 <label>
                     <!-- <input type="checkbox" value="remember-me"> Remember me -->
